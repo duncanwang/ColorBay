@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
-/* 公共函数库 */
 library SafeMath {
+
     /* 加法 */
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
         uint256 c = a + b;
@@ -44,7 +44,6 @@ contract Ownable {
     /* 转让管理员日志 */
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-
     /**
      * @dev 设置合约创建者为合约管理员
      */
@@ -52,10 +51,9 @@ contract Ownable {
         owner = msg.sender;
     }
 
-
     /**
-     * @dev 仅限合约管理员操作
-     */
+    * @dev 仅限合约管理员操作
+    */
     modifier onlyOwner() {
         require(msg.sender == owner);
         _;
@@ -63,15 +61,12 @@ contract Ownable {
 
 
     /**
-     * @dev 将合约管理员权限转让给新管理员
-     * @param newOwner 新管理员钱包地址
-     */
+    * @dev 将合约管理员权限转让给新管理员
+    * @param newOwner 新管理员钱包地址
+    */
     function transferOwnership(address newOwner) public onlyOwner {
-        /* 如果新管理员地址为空就抛出异常 */
         require(newOwner != address(0));
-        /* 写入转让日志 */
         OwnershipTransferred(owner, newOwner);
-        /* 修改管理员 */
         owner = newOwner;
     }
 
@@ -79,40 +74,40 @@ contract Ownable {
 
 /* 合约交易开关，只有合约管理员才能操作 */
 contract Pausable is Ownable {
+    /* 开关事件，如果没有参数，仅记录事件名 */
     event Pause();
     event Unpause();
 
     /* 合约交易开关变量 */
     bool public paused = false;
 
-
     /**
-     * @dev 仅限未停止合约交易情况下操作
-     */
+    * @dev 仅限未停止合约交易情况下操作
+    */
     modifier whenNotPaused() {
         require(!paused);
         _;
     }
 
     /**
-     * @dev 仅限停止合约交易情况下操作
-     */
+    * @dev 仅限停止合约交易情况下操作
+    */
     modifier whenPaused() {
         require(paused);
         _;
     }
 
     /**
-     * @dev 合约管理员停止合约交易
-     */
+    * @dev 合约管理员停止合约交易
+    */
     function pause() onlyOwner whenNotPaused public {
         paused = true;
         Pause();
     }
 
     /**
-     * @dev 合约管理员开启合约交易
-     */
+    * @dev 合约管理员开启合约交易
+    */
     function unpause() onlyOwner whenPaused public {
         paused = false;
         Unpause();
@@ -120,7 +115,7 @@ contract Pausable is Ownable {
 }
 
 /* ERC20标准 */
-contract ERC20 {
+contract ERC20Basic {
     /* token总发行量 */
     uint256 public totalSupply;
     /* 获取指定钱包地址的token余额 */
@@ -129,25 +124,27 @@ contract ERC20 {
     function transfer(address to, uint256 value) public returns (bool);
     /* 转账日志 */
     event Transfer(address indexed from, address indexed to, uint256 value);
-    /* 获取spender还能提取token的个数 */
+}
+
+/* ERC20标准 */
+contract ERC20 is ERC20Basic {
+    /* 获取允许spender还能提取token的额度 */
     function allowance(address owner, address spender) public view returns (uint256);
     /* 批准spender账户从自己的账户转移value个token，可分多次转移 */
-    function approve(address spender, uint256 value) public returns (bool);
-    /* 与approve搭配使用，approve批准之后，调用transferFrom来转移token */
     function transferFrom(address from, address to, uint256 value) public returns (bool);
+    /* 与approve搭配使用，approve批准之后，调用transferFrom来转移token */
+    function approve(address spender, uint256 value) public returns (bool);
     /* 当调用approve成功时，一定要触发Approval事件 */
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-/* 标准合约，实现ERC20标准 */
-contract StandardToken is ERC20 {
+/* 基础合约，实现ERC20标准 */
+contract BasicToken is ERC20Basic {
     /* 导入安全运算库 */
     using SafeMath for uint256;
 
     /* 存储指定钱包的token余额 */
     mapping(address => uint256) balances;
-    /* 指定账号的token余额 */
-    mapping (address => mapping (address => uint256)) internal allowed;
 
     /**
      * @dev 转移_value个token到指定钱包地址_to
@@ -155,31 +152,36 @@ contract StandardToken is ERC20 {
      * @param _value token个数
      */
     function transfer(address _to, uint256 _value) public returns (bool) {
-        /* 钱包地址为0x0时，抛出异常 */
         require(_to != address(0));
-        /* 钱包地址为0x0时，抛出异常 */
         require(_value <= balances[msg.sender]);
-        /* 减去发送者的token数量，如果没有足够的余额，安全处理库sub函数将抛出异常 */
+
+        /* 如果余额不足，SafeMath.sub将抛出异常 */
         balances[msg.sender] = balances[msg.sender].sub(_value);
-        /* 累加接收者的token数量 */
         balances[_to] = balances[_to].add(_value);
-        /* 转账日志 */
         Transfer(msg.sender, _to, _value);
         return true;
     }
 
     /**
      * @dev 获取指定钱包地址的token余额
-     * @param _owner 指定钱包地址.
+     * @param _owner 指定钱包地址
      * @return uint256
      */
     function balanceOf(address _owner) public view returns (uint256 balance) {
         return balances[_owner];
     }
 
+}
+
+/* 标准合约，实现ERC20标准 */
+contract StandardToken is ERC20, BasicToken {
+
+    /* 指定账号的token额度 */
+    mapping (address => mapping (address => uint256)) internal allowed;
+
+
     /**
-     * @dev 从一个钱包地址转移token到另一个钱包地址，更新token余额
-     * 可理解成支票兑现
+     * @dev 从一个钱包地址转移token到另一个钱包地址，更新被允许的token额度
      * 与approve搭配使用，approve批准之后，调用transferFrom来转移token
      * @param _from 从哪个钱包地址发送token
      * @param _to 转移到哪个钱包地址
@@ -197,14 +199,13 @@ contract StandardToken is ERC20 {
         return true;
     }
 
-    /**
-     * @dev 批准spender账户从自己的账户转移value个token，可分多次转移
-     * 可理解为开支票
-     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-     * @param _spender 需要花费token的账号，可以理解成大客户
-     * @param _value token个数，可以理解成支票上的可用额度
-     */
 
+    /**
+     * @dev 批准spender从自己的账户转移value个token，可分多次转移
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     * @param _spender 将要花费token的地址
+     * @param _value token个数，可以理解成token额度
+    */
     function approve(address _spender, uint256 _value) public returns (bool) {
         allowed[msg.sender][_spender] = _value;
         Approval(msg.sender, _spender, _value);
@@ -212,9 +213,9 @@ contract StandardToken is ERC20 {
     }
 
     /**
-     * @dev 获取spender还能提取token的个数
-     * @param _owner
-     * @param _spender 可以理解成大客户的钱包地址
+     * @dev 获取允许spender提取token的额度
+     * @param _owner 上一级钱包地址，如合约管理员钱包地址
+     * @param _spender 将要花费token的地址
      * @return uint256
      */
     function allowance(address _owner, address _spender) public view returns (uint256) {
@@ -222,10 +223,8 @@ contract StandardToken is ERC20 {
     }
 
     /**
-     * @dev 增加spender的可用token数量
-     * 可理解成增加支票可用额度
-     * 当allowed[_spender] == 0时调用这个方法可增加spender的可用token数量
-     * @param _spender 将花费token的地址
+     * @dev 增加spender的可用token额度
+     * @param _spender 将要花费token的地址
      * @param _addedValue 需要增加token的个数，可理解成可使用的token额度
      */
     function increaseApproval(address _spender, uint _addedValue) public returns (bool) {
@@ -235,10 +234,8 @@ contract StandardToken is ERC20 {
     }
 
     /**
-     * @dev 减少spender的可用token数量
-     * 可理解成减少支票可用额度
-     * 当allowed[_spender] > 0时调用这个方法可减少spender的可用token数量
-     * @param _spender 将花费token的地址
+     * @dev 减少spender的可用token额度
+     * @param _spender 将要花费token的地址
      * @param _subtractedValue 需要减少token的个数，可理解成可使用的token额度
      */
     function decreaseApproval(address _spender, uint _subtractedValue) public returns (bool) {
@@ -280,8 +277,8 @@ contract PausableToken is StandardToken, Pausable {
 contract ColorBayTestToken is PausableToken {
     string public name = "ColorBayToken";
     string public symbol = "CBTT";
-    uint public decimals = 18;
-    uint public INITIAL_SUPPLY = 200000000000000000000000000;
+    uint256 public decimals = 18;
+    uint256 public INITIAL_SUPPLY = 200000000 * (10 ** 18);
 
     function ColorBayTestToken() public {
         totalSupply = INITIAL_SUPPLY;
