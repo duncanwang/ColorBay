@@ -275,13 +275,14 @@ contract PausableToken is StandardToken, Pausable {
 }
 
 contract ColorBayTestToken is PausableToken {
-    string public name = "ColorBayTestToken";
-    string public symbol = "CBTT";
+    string public name;
+    string public symbol;
     uint256 public decimals = 18;
-    uint256 public INITIAL_SUPPLY = 200000000 * (10 ** 18);
 
-    function ColorBayTestToken() public {
-        totalSupply = INITIAL_SUPPLY;
-        balances[msg.sender] = INITIAL_SUPPLY;
+    function ColorBayTestToken(uint256 initialSupply, string tokenName, string tokenSymbol) public {
+        totalSupply = initialSupply * 10 ** uint256(decimals);
+        balances[msg.sender] = totalSupply;
+        name = tokenName;
+        symbol = tokenSymbol;
     }
 }
