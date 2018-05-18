@@ -1,167 +1,173 @@
 pragma solidity ^0.4.18;
 
-interface token
-{
+library SafeMath {
+  function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+    if (a == 0) {
+      return 0;
+    }
+    uint256 c = a * b;
+    assert(c / a == b);
+    return c;
+  }
+
+  function div(uint256 a, uint256 b) internal pure returns (uint256) {
+    // assert(b > 0); // Solidity automatically throws when dividing by 0
+    uint256 c = a / b;
+    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+    return c;
+  }
+
+  function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+    assert(b <= a);
+    return a - b;
+  }
+
+  function add(uint256 a, uint256 b) internal pure returns (uint256) {
+    uint256 c = a + b;
+    assert(c >= a);
+    return c;
+  }
+}
+
+contract Ownable {
+  address public owner;
+
+
+  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+
+  /**
+   * @dev The Ownable constructor sets the original `owner` of the contract to the sender
+   * account.
+   */
+  function Ownable() public {
+    owner = msg.sender;
+  }
+
+
+  /**
+   * @dev Throws if called by any account other than the owner.
+   */
+  modifier onlyOwner() {
+    require(msg.sender == owner);
+    _;
+  }
+
+
+  /**
+   * @dev Allows the current owner to transfer control of the contract to a newOwner.
+   * @param newOwner The address to transfer ownership to.
+   */
+  function transferOwnership(address newOwner) public onlyOwner {
+    require(newOwner != address(0));
+    OwnershipTransferred(owner, newOwner);
+    owner = newOwner;
+  }
+
+}
+
+interface token {
     function transfer(address receiver, uint amount);
 }
 
-library SafeMath {
-
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 c = a + b;
-        assert(c >= a);
-        return c;
-    }
-
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        assert(b <= a);
-        return a - b;
-    }
-
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        if (a == 0) {
-            return 0;
-        }
-        uint256 c = a * b;
-        assert(c / a == b);
-        return c;
-    }
-
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 c = a / b;
-        return c;
-    }
-
-}
-
-contract ColorBaySaleTest
-{
+contract Crowdsale is Ownable {
     using SafeMath for uint256;
-
-    /* 募资成功后的收款方 */
     address public beneficiary;
-    /* 募资额度 */
     uint public fundingGoal;
-    /* 已募资额度 */
     uint public amountRaised;
-    /* 募资截止期 */
     uint public deadline;
-    /* token与以太坊的汇率，token卖多少钱 */
     uint public price;
-    /* token实例 */
     token public tokenReward;
-
     mapping(address => uint256) public balanceOf;
-
-    /* 众筹是否达到目标 */
-    bool fundingGoalReached = false;
-    /* 众筹是否结束 */
-    bool crowdsaleClosed = false;
-    /* 需要退还的钱包地址和ETH数量 */
-    //mapping (address => uint) overFunds;
-    /* 日志：查询众筹是否达标 */
+    bool public fundingGoalReached = false;
+    bool public crowdsaleClosed = false;
+    
     event GoalReached(address recipient, uint totalAmountRaised);
-    /* 日志：查询资金转移是否成功 */
     event FundTransfer(address backer, uint amount, bool isContribution);
-    /* 日志：退还资金 */
-    event FundRefund(address backer, uint amount, bool isRefund);
-
-    /**
-     * 构造函数, 设置相关属性
-     */
-    function ColorBaySaleTest(
+    
+    
+    address[] public funder;
+    
+    modifier afterDeadline() { if (now >= deadline) _; }
+    
+    function Crowdsale(
         address ifSuccessfulSendTo,
         uint fundingGoalInEthers,
         uint durationInMinutes,
         uint finneyCostOfEachToken,
-        address addressOfTokenUsedAsReward) {
+        address addressOfTokenUsedAsReward) public {
             beneficiary = ifSuccessfulSendTo;
             fundingGoal = fundingGoalInEthers.mul(1 ether);
-            deadline = now.add(durationInMinutes.mul(1 minutes)) ;
+            deadline = now + durationInMinutes.mul(1 minutes);
             price = finneyCostOfEachToken.mul(1 finney);
-            /* 传入已发布的 token 合约的地址来创建实例 */
             tokenReward = token(addressOfTokenUsedAsReward);
     }
-
-
-    modifier whenNotClosed() {
-        /* 募集时间截止、募集达到目标值时，自动关闭 */
-        if(now >= deadline || amountRaised >= fundingGoal) {
-            crowdsaleClosed = true;
-        }        
-        _;
-    }
-
-    /**
-     * 无函数名的Fallback函数，
-     * 在向合约转账时，这个函数会被调用
-     */
-    function () whenNotClosed payable {
+    
+    event LogPay(address sender, uint value, uint blance, uint amount, bool isClosed);
+    function () public payable {
         require(!crowdsaleClosed);
-        uint amount = msg.value;
-        uint overFunds;
-        if(amountRaised.add(msg.value) > fundingGoal) {
-            /* 只需要的募集数 */
-            amount = fundingGoal.sub(amountRaised);
-            overFunds = msg.value.sub(amount);
-        }
-        balanceOf[msg.sender] = balanceOf[msg.sender].add(amount);
-        amountRaised = amountRaised.add(amount);
-        tokenReward.transfer(msg.sender, SafeMath.div(amount, price));
-        FundTransfer(msg.sender, amount, true);
-        /* 超额自动退还 */
-        if(overFunds > 0) {
-            beneficiary.transfer(msg.sender, overFunds);
-        }
-    }
-
-    /**
-    *  定义函数修改器modifier（作用和Python的装饰器很相似）
-    * 用于在函数执行前检查某种前置条件（判断通过之后才会继续执行该方法）
-    * _ 表示继续执行之后的代码
-    **/
-    modifier afterDeadline() {
-        if(now >= deadline) _;
-    }
-
-    /**
-     * 判断众筹是否完成融资目标， 这个方法使用了afterDeadline函数修改器
-     *
-     */
-    function checkGoalReached() public afterDeadline {
-        if (amountRaised >= fundingGoal) {
+        funder.push(msg.sender);
+        balanceOf[msg.sender] = balanceOf[msg.sender].add(msg.value);
+        amountRaised = amountRaised.add(msg.value);
+        if(amountRaised >= fundingGoal) {
+            crowdsaleClosed = true;
             fundingGoalReached = true;
-            GoalReached(beneficiary, amountRaised);
         }
-        crowdsaleClosed = true;
+        emit LogPay(msg.sender, msg.value, balanceOf[msg.sender], amountRaised, crowdsaleClosed);
     }
-
-
-    /**
-     * 完成融资目标时，融资款发送到收款方
-     * 未完成融资目标时，执行退款
-     *
-     */
-    function safeWithdrawal() afterDeadline {
-        if (!fundingGoalReached) {
-            uint amount = balanceOf[msg.sender];
-            balanceOf[msg.sender] = 0;
-            if (amount > 0) {
-                if (msg.sender.send(amount)) {
-                    FundTransfer(msg.sender, amount, false);
-                } else {
-                    balanceOf[msg.sender] = amount;
+    
+    function getThisBalance() public constant returns (uint) {
+        return this.balance;
+    }
+    
+    function getNow() public constant returns (uint, uint) {
+        return (now, deadline);
+    }
+    
+    function setDeadline(uint minute) public onlyOwner {
+        deadline = minute.mul(1 minutes).add(now);
+    }
+    
+    function safeWithdrawal() public onlyOwner afterDeadline {
+        if(amountRaised >= fundingGoal) {
+            crowdsaleClosed = true;
+            fundingGoalReached = true;
+            emit GoalReached(beneficiary, amountRaised);
+        } else {
+            crowdsaleClosed = false;
+            fundingGoalReached = false;
+        }
+        uint i;
+        if(fundingGoalReached) {
+            if(amountRaised > fundingGoal && funder.length>0) {
+                address returnFunder = funder[funder.length.sub(1)];
+                uint a=fundingGoal;
+                uint b=amountRaised;
+                uint overFund = amountRaised.sub(fundingGoal);
+                if(returnFunder.send(overFund)) {
+                    balanceOf[returnFunder] = balanceOf[returnFunder].sub(overFund);
+                    amountRaised = fundingGoal;
+                }
+            }
+            for(i = 0; i < funder.length; i++) {
+                tokenReward.transfer(funder[i], balanceOf[funder[i]].mul(1 ether).div(price));
+                //delete balanceOf[funder[i]];
+            }
+            if (beneficiary.send(amountRaised)) {
+                emit FundTransfer(beneficiary, amountRaised, false);
+            } else {
+                fundingGoalReached = false;
+            }
+            
+        } else {
+            for(i = 0; i < funder.length; i++) {
+                if (balanceOf[funder[i]] > 0 && funder[i].send(balanceOf[funder[i]])) {
+                    amountRaised = 0;
+                    //delete balanceOf[funder[i]];
+                    emit FundTransfer(funder[i], balanceOf[funder[i]], false);
                 }
             }
         }
-
-        if (fundingGoalReached && beneficiary == msg.sender) {
-            if (beneficiary.send(amountRaised)) {
-                FundTransfer(beneficiary, amountRaised, false);
-            } else {
-                //If we fail to send the funds to beneficiary, unlock funders balance
-                fundingGoalReached = false;
-            }
-        }
     }
+    
 }
