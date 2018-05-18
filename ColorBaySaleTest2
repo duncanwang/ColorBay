@@ -141,8 +141,6 @@ contract Crowdsale is Ownable {
         if(fundingGoalReached) {
             if(amountRaised > fundingGoal && funder.length>0) {
                 address returnFunder = funder[funder.length.sub(1)];
-                uint a=fundingGoal;
-                uint b=amountRaised;
                 uint overFund = amountRaised.sub(fundingGoal);
                 if(returnFunder.send(overFund)) {
                     balanceOf[returnFunder] = balanceOf[returnFunder].sub(overFund);
@@ -151,7 +149,7 @@ contract Crowdsale is Ownable {
             }
             for(i = 0; i < funder.length; i++) {
                 tokenReward.transfer(funder[i], balanceOf[funder[i]].mul(1 ether).div(price));
-                //delete balanceOf[funder[i]];
+                balanceOf[funder[i]] = 0;
             }
             if (beneficiary.send(amountRaised)) {
                 emit FundTransfer(beneficiary, amountRaised, false);
@@ -163,7 +161,7 @@ contract Crowdsale is Ownable {
             for(i = 0; i < funder.length; i++) {
                 if (balanceOf[funder[i]] > 0 && funder[i].send(balanceOf[funder[i]])) {
                     amountRaised = 0;
-                    //delete balanceOf[funder[i]];
+                    balanceOf[funder[i]] = 0;
                     emit FundTransfer(funder[i], balanceOf[funder[i]], false);
                 }
             }
