@@ -279,7 +279,7 @@ contract ColorBayTestToken is PausableToken {
     string public symbol;
     uint256 public decimals = 18;
 
-    function ColorBayTestToken(uint256 initialSupply, string tokenName, string tokenSymbol) public {
+    constructor(uint256 initialSupply, string tokenName, string tokenSymbol) public {
         totalSupply = initialSupply * 10 ** uint256(decimals);
         balances[msg.sender] = totalSupply;
         name = tokenName;
