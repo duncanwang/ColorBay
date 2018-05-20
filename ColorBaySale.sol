@@ -38,7 +38,7 @@ contract Ownable {
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
    */
-  function Ownable() public {
+  constructor() public {
     owner = msg.sender;
   }
 
@@ -78,18 +78,18 @@ contract ColorBaySale is Ownable {
     mapping(address => uint256) public balanceOf;
     bool public fundingGoalReached = false;
     bool public crowdsaleClosed = false;
-    
+
     event GoalReached(address recipient, uint totalAmountRaised);
     event FundTransfer(address backer, uint amount, bool isContribution);
-    
-    
+
+
     address[] public funder;
-    
-    modifier afterDeadline() { 
+
+    modifier afterDeadline() {
       require(now >= deadline);
       _;
     }
-    
+
     constructor(
         address ifSuccessfulSendTo,
         uint fundingGoalInEthers,
@@ -102,7 +102,7 @@ contract ColorBaySale is Ownable {
             price = finneyCostOfEachToken.mul(1 finney);
             tokenReward = token(addressOfTokenUsedAsReward);
     }
-    
+
     event LogPay(address sender, uint value, uint blance, uint amount, bool isClosed);
     function () public payable {
         require(!crowdsaleClosed);
@@ -115,19 +115,19 @@ contract ColorBaySale is Ownable {
         }
         emit LogPay(msg.sender, msg.value, balanceOf[msg.sender], amountRaised, crowdsaleClosed);
     }
-    
+
     function getThisBalance() public constant returns (uint) {
         return address(this).balance;
     }
-    
+
     function getNow() public constant returns (uint, uint) {
         return (now, deadline);
     }
-    
+
     function setDeadline(uint minute) public onlyOwner {
         deadline = minute.mul(1 minutes).add(now);
     }
-    
+
     function safeWithdrawal() public onlyOwner afterDeadline {
         if(amountRaised >= fundingGoal) {
             crowdsaleClosed = true;
@@ -156,7 +156,7 @@ contract ColorBaySale is Ownable {
             } else {
                 fundingGoalReached = false;
             }
-            
+
         } else {
             for(i = 0; i < funder.length; i++) {
                 if (balanceOf[funder[i]] > 0 && funder[i].send(balanceOf[funder[i]])) {
@@ -167,5 +167,5 @@ contract ColorBaySale is Ownable {
             }
         }
     }
-    
+
 }
