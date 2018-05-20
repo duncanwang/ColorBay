@@ -85,7 +85,10 @@ contract ColorBaySale is Ownable {
     
     address[] public funder;
     
-    modifier afterDeadline() { if (now >= deadline) _; }
+    modifier afterDeadline() { 
+      require(now >= deadline);
+      _;
+    }
     
     constructor(
         address ifSuccessfulSendTo,
