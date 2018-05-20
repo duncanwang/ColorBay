@@ -47,7 +47,7 @@ contract Ownable {
     /**
      * @dev 设置合约创建者为合约管理员
      */
-    function Ownable() public {
+    constructor() public {
         owner = msg.sender;
     }
 
@@ -164,7 +164,7 @@ contract ColorBaySale is Ownable {
     }
 
     /**
-     * 批量处理众筹情况 
+     * 批量处理众筹情况
      * 如果成功，募资方收到ETH，投资人收到token
      * 如果失败，募资方退回ETH，投资人收回ETH，无token
      */
