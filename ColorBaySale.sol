@@ -117,7 +117,7 @@ contract ColorBaySale is Ownable {
     }
     
     function getThisBalance() public constant returns (uint) {
-        return this.balance;
+        return address(this).balance;
     }
     
     function getNow() public constant returns (uint, uint) {
