@@ -47,7 +47,7 @@ contract Ownable {
     /**
      * @dev 设置合约创建者为合约管理员
      */
-    function Ownable() public {
+    constructor() public {
         owner = msg.sender;
     }
 
