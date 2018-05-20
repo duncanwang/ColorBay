@@ -283,7 +283,7 @@ contract ColorBayToken is PausableToken {
     constructor(uint256 initialSupply, string tokenName, string tokenSymbol) public {
         /* token发行总量 */
         totalSupply = initialSupply * 10 ** uint256(decimals);
-        /* token余额 */
+        /* 合约创建者拥有所有余额 */
         balances[msg.sender] = totalSupply;
         /* 初始化token的名称 */
         name = tokenName;
