@@ -502,18 +502,30 @@ contract BurnableToken is BasicToken {
 }
 
 
-
+/**
+ * @title Colorbay Token
+ * @dev Global digital painting asset platform token.
+ */
 contract Colorbay is PausableToken,MintableToken,BurnableToken {
     string public name;
     string public symbol;
     uint256 public decimals = 18;
 
     //"1000000000","Colorbay","CLB"
-    constructor(uint256 initialSupply, string tokenName, string tokenSymbol) public {
-        totalSupply_ = initialSupply * 10 ** uint256(decimals);
+    constructor(uint256 _initialSupply, string _tokenName, string _tokenSymbol) public {
+        totalSupply_ = _initialSupply * 10 ** uint256(decimals);
         balances[msg.sender] = totalSupply_;
-        name = tokenName;
-        symbol = tokenSymbol;
+        name = _tokenName;
+        symbol = _tokenSymbol;
+    }
+
+    /**
+     * @dev Update the symbol.
+     * @param _tokenSymbol The symbol name.
+     */
+    function setSymbol(_tokenSymbol) public onlyOwner returns (bool) {
+        symbol = _tokenSymbol;
+        return true;
     }
 
 }
