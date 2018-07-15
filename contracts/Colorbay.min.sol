@@ -506,7 +506,9 @@ contract BurnableToken is BasicToken {
  * @title Colorbay Token
  * @dev Global digital painting asset platform token.
  */
-contract Colorbay is PausableToken,MintableToken,BurnableToken {
+contract Colorbay is PausableToken, MintableToken, BurnableToken {
+    using SafeMath for uint256;
+
     string public name;
     string public symbol;
     uint256 public decimals = 18;
@@ -530,6 +532,18 @@ contract Colorbay is PausableToken,MintableToken,BurnableToken {
 
     function() payable {
       revert();
+    }
+
+    /**
+     * @dev mint timelocked tokens
+     */
+    function mintTimelocked(address _to, uint256 _amount, uint256 _releaseTime)
+        onlyOwner canMint returns (TokenTimelock) {
+
+        TokenTimelock timelock = new TokenTimelock(this, _to, _releaseTime);
+        mint(timelock, _amount);
+
+        return timelock;
     }
 
 }
