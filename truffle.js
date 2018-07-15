@@ -18,7 +18,7 @@
 
 var HDWalletProvider = require("truffle-hdwallet-provider");
 var infura_apikey = "***"; // infura apikey
-var mnemonic = "loan wasp endless couch melt develop cabbage sock deny tackle fringe history"; // 你以太坊钱包的 mnemonic ，可以从 Metamask 当中导出，mnemonic 可以获取你钱包的所有访问权限，请妥善保存，在开发中切勿提交到 git
+var mnemonic = "***"; // 钱包助记词
 
 module.exports = {
   networks: {
