@@ -4,10 +4,10 @@
 ### 合约目录
 ```
 contracts
-    |--- Colorbay.sol	    通证合约
-    |--- Colorbay.min.sol	通证合约压缩版
-    |--- ColorbayCrowdsale.sol	    众筹合约
-    |--- ColorbayCrowdsale.min.sol	众筹合约压缩版
+    ├── Colorbay.sol	    通证合约
+    ├── Colorbay.min.sol	通证合约压缩版
+    ├── ColorbayCrowdsale.sol	    众筹合约
+    └── ColorbayCrowdsale.min.sol	众筹合约压缩版
 ```
 
 ### 安装说明
