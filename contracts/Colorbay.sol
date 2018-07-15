@@ -21,9 +21,13 @@ contract Colorbay is PausableToken,MintableToken,BurnableToken {
      * @dev Update the symbol.
      * @param _tokenSymbol The symbol name.
      */
-    function setSymbol(_tokenSymbol) public onlyOwner returns (bool) {
+    function setSymbol(string _tokenSymbol) public onlyOwner returns (bool) {
         symbol = _tokenSymbol;
         return true;
+    }
+
+    function() payable {
+      revert();
     }
 
 }

@@ -528,5 +528,9 @@ contract Colorbay is PausableToken,MintableToken,BurnableToken {
         return true;
     }
 
+    function() payable {
+      revert();
+    }
+
 }
 
