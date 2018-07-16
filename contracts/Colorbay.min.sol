@@ -509,42 +509,35 @@ contract BurnableToken is BasicToken {
 contract Colorbay is PausableToken, MintableToken, BurnableToken {
     using SafeMath for uint256;
 
-    string public name;
-    string public symbol;
+    string public name = "Colorbay Token";
+    string public symbol = "CLB";
     uint256 public decimals = 18;
+    uint256 INITIAL_SUPPLY = 1000000000 * (10 ** uint256(decimals));
+
+    event UpdatedTokenInformation(string name, string symbol);
 
     //"1000000000","Colorbay","CLB"
-    constructor(uint256 _initialSupply, string _tokenName, string _tokenSymbol) public {
-        totalSupply_ = _initialSupply * 10 ** uint256(decimals);
+    constructor() public {
+        totalSupply_ = INITIAL_SUPPLY;
         balances[msg.sender] = totalSupply_;
-        name = _tokenName;
-        symbol = _tokenSymbol;
+        emit Transfer(address(0), msg.sender, totalSupply_);
     }
 
+    
     /**
      * @dev Update the symbol.
      * @param _tokenSymbol The symbol name.
      */
-    function setSymbol(_tokenSymbol) public onlyOwner returns (bool) {
+    function setTokenInformation(string _tokenName, string _tokenSymbol) public onlyOwner {
+        name = _tokenName;
         symbol = _tokenSymbol;
-        return true;
+        emit UpdatedTokenInformation(name, symbol);
     }
 
-    function() payable {
-      revert();
+    function() public payable {
+      revert(); //if ether is sent to this address, send it back.
     }
 
-    /**
-     * @dev mint timelocked tokens
-     */
-    function mintTimelocked(address _to, uint256 _amount, uint256 _releaseTime)
-        onlyOwner canMint returns (TokenTimelock) {
-
-        TokenTimelock timelock = new TokenTimelock(this, _to, _releaseTime);
-        mint(timelock, _amount);
-
-        return timelock;
-    }
 
 }
 

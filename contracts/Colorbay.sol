@@ -4,32 +4,41 @@ import 'openzeppelin-solidity/contracts/token/ERC20/PausableToken.sol'; //Standa
 import 'openzeppelin-solidity/contracts/token/ERC20/MintableToken.sol'; //StandardToken、Ownable
 import 'openzeppelin-solidity/contracts/token/ERC20/BurnableToken.sol'; //BasicToken
 
+
+/**
+ * @title Colorbay Token
+ * @dev Global digital painting asset platform token.
+ */
 contract Colorbay is PausableToken, MintableToken, BurnableToken {
     using SafeMath for uint256;
 
-    string public name;
-    string public symbol;
+    string public name = "Colorbay Token";
+    string public symbol = "CLB";
     uint256 public decimals = 18;
-    
+    uint256 INITIAL_SUPPLY = 1000000000 * (10 ** uint256(decimals));
+
+    event UpdatedTokenInformation(string name, string symbol);
+
     //"1000000000","Colorbay","CLB"
-    constructor(uint256 _initialSupply, string _tokenName, string _tokenSymbol) public {
-        totalSupply_ = _initialSupply * 10 ** uint256(decimals);
+    constructor() public {
+        totalSupply_ = INITIAL_SUPPLY;
         balances[msg.sender] = totalSupply_;
-        name = _tokenName;
-        symbol = _tokenSymbol;
+        emit Transfer(address(0), msg.sender, totalSupply_);
     }
 
+    
     /**
      * @dev Update the symbol.
      * @param _tokenSymbol The symbol name.
      */
-    function setSymbol(string _tokenSymbol) public onlyOwner returns (bool) {
+    function setTokenInformation(string _tokenName, string _tokenSymbol) public onlyOwner {
+        name = _tokenName;
         symbol = _tokenSymbol;
-        return true;
+        emit UpdatedTokenInformation(name, symbol);
     }
 
-    function() payable {
-      revert();
+    function() public payable {
+      revert(); //if ether is sent to this address, send it back.
     }
 
     /**
@@ -43,6 +52,8 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken {
 
         return timelock;
     }
+
+
 
 }
 
