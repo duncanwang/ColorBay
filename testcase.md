@@ -51,4 +51,4 @@ balanceOf("0x14723a09acff6d2a60dcdf7aa4aff308fddc160c")
 ```
 approve("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db", 2000000000)
 ```
-2、切换
+2、李四给王五转账，执行：
