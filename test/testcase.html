@@ -246,8 +246,8 @@ code.language-yaml {
 <hr>
 <h4 class="mume-header" id="%E7%94%A8%E4%BE%8B1%E5%88%9B%E5%BB%BA%E4%BB%A3%E5%B8%81%E5%90%88%E7%BA%A6clb">用例1——创建代币合约CLB</h4>
 
-<p>只有管理员拥有操作权限<br>
-1、创建一个代币合约CLB；</p>
+<p>只有管理员拥有操作权限</p>
+<p>1、创建一个代币合约CLB；</p>
 <p>2、查看事件日志。</p>
 <hr>
 <h4 class="mume-header" id="%E7%94%A8%E4%BE%8B2%E6%9F%A5%E7%9C%8B%E5%90%88%E7%BA%A6">用例2——查看合约</h4>
@@ -306,8 +306,8 @@ mintingFinished()
 <pre data-role="codeBlock" data-info="" class="language-"><code>paused()
 </code></pre><h4 class="mume-header" id="%E7%94%A8%E4%BE%8B6%E5%86%BB%E7%BB%93%E8%B4%A6%E6%88%B7">用例6——冻结账户</h4>
 
-<p>只有管理员拥有操作权限<br>
-1、查询王五账号<code>0x583...40225</code>是否被冻结</p>
+<p>只有管理员拥有操作权限</p>
+<p>1、查询王五账号<code>0x583...40225</code>是否被冻结</p>
 <pre data-role="codeBlock" data-info="" class="language-"><code>frozenAccount(&quot;0x583031d1113ad414f02576bd6afabfb302140225&quot;)
 </code></pre><p>2、切换到王五账号<code>0x583...40225</code>下，自己冻结自己，将会失败，因为没有权限</p>
 <pre data-role="codeBlock" data-info="" class="language-"><code>freezeAccount(&quot;0x583031d1113ad414f02576bd6afabfb302140225&quot;, true)
@@ -320,8 +320,8 @@ mintingFinished()
 </code></pre><p>重复第1、3步</p>
 <h4 class="mume-header" id="%E7%94%A8%E4%BE%8B7%E5%A2%9E%E5%8F%91">用例7——增发</h4>
 
-<p>只有管理员拥有操作权限<br>
-1、查询是否可增发</p>
+<p>只有管理员拥有操作权限</p>
+<p>1、查询是否可增发</p>
 <pre data-role="codeBlock" data-info="" class="language-"><code>mintingFinished()
 </code></pre><p>2、查询CLB总量</p>
 <pre data-role="codeBlock" data-info="" class="language-"><code>totalSupply
@@ -335,8 +335,8 @@ mintingFinished()
 </code></pre><p>重复第3步</p>
 <h4 class="mume-header" id="%E7%94%A8%E4%BE%8B8%E7%87%83%E7%83%A7">用例8——燃烧</h4>
 
-<p>只有管理员拥有操作权限<br>
-1、查询CLB总量</p>
+<p>只有管理员拥有操作权限</p>
+<p>1、查询CLB总量</p>
 <pre data-role="codeBlock" data-info="" class="language-"><code>totalSupply
 </code></pre><p>2、切换到李四账号<code>0x4b0...4d2db</code>下，燃烧代币总量中的10000个CLB，将会报错，因为没有权限：</p>
 <pre data-role="codeBlock" data-info="" class="language-"><code>burn(&quot;10000,000000000000000000&quot;)
@@ -345,8 +345,8 @@ mintingFinished()
 </code></pre><p>重复第1步</p>
 <h4 class="mume-header" id="%E7%94%A8%E4%BE%8B9%E6%9B%B4%E6%96%B0%E4%BB%A3%E5%B8%81%E5%90%8D%E5%AD%97%E5%92%8C%E7%AE%80%E7%A7%B0">用例9——更新代币名字和简称</h4>
 
-<p>只有管理员拥有操作权限<br>
-1、查看当前代币名字和简称<br>
+<p>只有管理员拥有操作权限</p>
+<p>1、查看当前代币名字和简称<br>
 2、切换到李四账号<code>0x4b0...4d2db</code>下，执行更新，将会报错，因为没有权限：</p>
 <pre data-role="codeBlock" data-info="" class="language-"><code>setTokenInformation(&quot;Colorbay Token 2&quot;, &quot;CLB2&quot;)
 </code></pre><p>3、切换到管理员账号<code>0xca3...a733c</code>下，执行更新：</p>
@@ -354,8 +354,8 @@ mintingFinished()
 </code></pre><p>重复第1步</p>
 <h4 class="mume-header" id="%E7%94%A8%E4%BE%8B10%E6%9B%B4%E6%8D%A2%E5%90%88%E7%BA%A6%E7%AE%A1%E7%90%86%E5%91%98">用例10——更换合约管理员</h4>
 
-<p>只有管理员拥有操作权限<br>
-1、切换到李四账号<code>0x4b0...4d2db</code>下，执行更新，将会报错，因为没有权限：</p>
+<p>只有管理员拥有操作权限</p>
+<p>1、切换到李四账号<code>0x4b0...4d2db</code>下，执行更新，将会报错，因为没有权限：</p>
 <pre data-role="codeBlock" data-info="" class="language-"><code>transferOwnership(&quot;0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db&quot;)
 </code></pre><p>2、切换到当前管理员账号<code>0xca3...a733c</code>下，将管理员身份转让给李四：</p>
 <pre data-role="codeBlock" data-info="" class="language-"><code>transferOwnership(&quot;0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db&quot;)
