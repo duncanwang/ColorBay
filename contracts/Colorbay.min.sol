@@ -485,11 +485,13 @@ contract BurnableToken is BasicToken {
    * @dev Burns a specific amount of tokens.
    * @param _value The amount of token to be burned.
    */
-  function burn(uint256 _value) public {
+  function burn(uint256 _value) public 
+  {
     _burn(msg.sender, _value);
   }
 
-  function _burn(address _who, uint256 _value) internal {
+  function _burn(address _who, uint256 _value) internal 
+  {
     require(_value <= balances[_who]);
     // no need to require value <= totalSupply, since that would imply the
     // sender's balance is greater than the totalSupply, which *should* be an assertion failure
@@ -516,13 +518,36 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken {
 
     event UpdatedTokenInformation(string name, string symbol);
 
-    //"1000000000","Colorbay","CLB"
+    mapping (address => bool) public frozenAccount;
+    event FrozenFunds(address indexed to, bool frozen);
+
     constructor() public {
         totalSupply_ = INITIAL_SUPPLY;
         balances[msg.sender] = totalSupply_;
         emit Transfer(address(0), msg.sender, totalSupply_);
     }
 
+    function() public payable {
+      revert(); //if ether is sent to this address, send it back.
+    }  
+
+    function transfer(address _to, uint256 _value) public returns (bool)
+    {
+        require(!frozenAccount[msg.sender]);
+        return super.transfer(_to, _value);
+    }
+
+
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool)
+    {
+        require(!frozenAccount[msg.sender]);
+        return super.transferFrom(_from, _to, _value);
+    }
+
+    function freezeAccount(address _to, bool freeze) public onlyOwner {
+        frozenAccount[_to] = freeze;
+        emit FrozenFunds(_to, freeze);
+    }     
     
     /**
      * @dev Update the symbol.
@@ -532,12 +557,7 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken {
         name = _tokenName;
         symbol = _tokenSymbol;
         emit UpdatedTokenInformation(name, symbol);
-    }
-
-    function() public payable {
-      revert(); //if ether is sent to this address, send it back.
-    }
-
+    } 
 
 }
 

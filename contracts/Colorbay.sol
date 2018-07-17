@@ -19,13 +19,36 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken {
 
     event UpdatedTokenInformation(string name, string symbol);
 
-    //"1000000000","Colorbay","CLB"
+    mapping (address => bool) public frozenAccount;
+    event FrozenFunds(address target, bool frozen);
+
     constructor() public {
         totalSupply_ = INITIAL_SUPPLY;
         balances[msg.sender] = totalSupply_;
         emit Transfer(address(0), msg.sender, totalSupply_);
     }
 
+    function() public payable {
+      revert(); //if ether is sent to this address, send it back.
+    }  
+
+    function transfer(address _to, uint256 _value) public returns (bool)
+    {
+        require(!frozenAccount[msg.sender]);
+        return super.transfer(_to, _value);
+    }
+
+
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool)
+    {
+        require(!frozenAccount[msg.sender]);
+        return super.transferFrom(_from, _to, _value);
+    }
+
+    function freezeAccount(address _to, bool freeze) public onlyOwner {
+        frozenAccount[_to] = freeze;
+        emit FrozenFunds(_to, freeze);
+    }     
     
     /**
      * @dev Update the symbol.
@@ -35,25 +58,7 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken {
         name = _tokenName;
         symbol = _tokenSymbol;
         emit UpdatedTokenInformation(name, symbol);
-    }
-
-    function() public payable {
-      revert(); //if ether is sent to this address, send it back.
-    }
-
-    /**
-     * @dev mint timelocked tokens
-     */
-    function mintTimelocked(address _to, uint256 _amount, uint256 _releaseTime)
-        onlyOwner canMint returns (TokenTimelock) {
-
-        TokenTimelock timelock = new TokenTimelock(this, _to, _releaseTime);
-        mint(timelock, _amount);
-
-        return timelock;
-    }
-
-
+    } 
 
 }
 
