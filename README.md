@@ -14,8 +14,9 @@ contracts
 更新中...
 
 ### 修改日志
-Crowdsale.sol 122行，修改require(_weiAmount != 0);为require(_weiAmount >= 0.01 ether);
-激励分配表可用注释的形式写到合约中，参考Loopring (LRC)
+- `Crowdsale.sol` 122行，修改`require(_weiAmount != 0);`为`require(_weiAmount >= 0.01 ether);`
+- 激励分配表可用注释的形式写到合约中，参考Loopring (LRC)
+- 修改了`TimedCrowdsale`合约中构造函数里的条件判断，`require(_openingTime >= block.timestamp);`为`require(_openingTime <= block.timestamp);`
 
 ### 参考
 Zilliqa (ZIL)币

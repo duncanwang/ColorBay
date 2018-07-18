@@ -50,6 +50,72 @@ library SafeMath {
   }
 }
 
+/**
+ * @title ERC20 interface
+ * @dev see https://github.com/ethereum/EIPs/issues/20
+ */
+contract ERC20 {
+  function transfer(address to, uint256 value) public returns (bool);
+}
+
+/**
+ * @title Ownable
+ * @dev The Ownable contract has an owner address, and provides basic authorization control
+ * functions, this simplifies the implementation of "user permissions".
+ */
+contract Ownable {
+  address public owner;
+
+
+  event OwnershipRenounced(address indexed previousOwner);
+  event OwnershipTransferred(
+    address indexed previousOwner,
+    address indexed newOwner
+  );
+
+
+  /**
+   * @dev The Ownable constructor sets the original `owner` of the contract to the sender
+   * account.
+   */
+  constructor() public {
+    owner = msg.sender;
+  }
+
+  /**
+   * @dev Throws if called by any account other than the owner.
+   */
+  modifier onlyOwner() {
+    require(msg.sender == owner);
+    _;
+  }
+
+  /**
+   * @dev Allows the current owner to relinquish control of the contract.
+   */
+  function renounceOwnership() public onlyOwner {
+    emit OwnershipRenounced(owner);
+    owner = address(0);
+  }
+
+  /**
+   * @dev Allows the current owner to transfer control of the contract to a newOwner.
+   * @param _newOwner The address to transfer ownership to.
+   */
+  function transferOwnership(address _newOwner) public onlyOwner {
+    _transferOwnership(_newOwner);
+  }
+
+  /**
+   * @dev Transfers control of the contract to a newOwner.
+   * @param _newOwner The address to transfer ownership to.
+   */
+  function _transferOwnership(address _newOwner) internal {
+    require(_newOwner != address(0));
+    emit OwnershipTransferred(owner, _newOwner);
+    owner = _newOwner;
+  }
+}
 
 /**
  * @title Crowdsale
@@ -303,30 +369,9 @@ contract TimedCrowdsale is Crowdsale {
 
 }
 
-/**
- * @title MintedCrowdsale
- * @dev Extension of Crowdsale contract whose tokens are minted in each purchase.
- * Token ownership should be transferred to MintedCrowdsale for minting.
- */
-contract MintedCrowdsale is Crowdsale {
 
-  /**
-   * @dev Overrides delivery by minting tokens upon purchase.
-   * @param _beneficiary Token purchaser
-   * @param _tokenAmount Number of tokens to be minted
-   */
-  function _deliverTokens(
-    address _beneficiary,
-    uint256 _tokenAmount
-  )
-    internal
-  {
-    require(MintableToken(token).mint(_beneficiary, _tokenAmount));
-  }
-}
-
-contract ColorbayCrowdsale is TimedCrowdsale, MintedCrowdsale {
-    constructor(uint256 _openingTime, uint256 _closingTime, uint256 _rate, address _wallet, MintableToken _token) public 
+contract ColorbayCrowdsale is TimedCrowdsale {
+    constructor(uint256 _openingTime, uint256 _closingTime, uint256 _rate, address _wallet, ERC20 _token) public 
     Crowdsale(_rate, _wallet, _token)
     TimedCrowdsale(_openingTime, _closingTime) {
         
