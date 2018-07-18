@@ -79,7 +79,9 @@ contract MultiSign {
         _;
     }
 
-    * @dev Fallback function allows to deposit ether.
+    /**
+     * @dev Fallback function allows to deposit ether.
+     */
     function() payable {
         require(msg.value > 0);
         Deposit(msg.sender, msg.value);
