@@ -8,7 +8,7 @@ pragma solidity ^0.4.10;
 
 contract MultiSign {
 
-    uint view public MAX_OWNER_COUNT = 50;
+    uint public MAX_OWNER_COUNT = 50;
 
     event Confirmation(address indexed sender, uint indexed transactionId);//确认
     event Revocation(address indexed sender, uint indexed transactionId);//撤销
@@ -95,8 +95,9 @@ contract MultiSign {
     constructor(address[] _owners, uint _required) public validRequirement(_owners.length, _required)
     {
         for (uint i=0; i<_owners.length; i++) {
-            if (isOwner[_owners[i]] || _owners[i] == 0)
+            if (isOwner[_owners[i]] || _owners[i] == 0) {
                 throw;
+            }                
             isOwner[_owners[i]] = true;
         }
         owners = _owners;
@@ -121,14 +122,16 @@ contract MultiSign {
     function removeOwner(address owner) public onlyWallet ownerExists(owner)
     {
         isOwner[owner] = false;
-        for (uint i=0; i<owners.length - 1; i++)
+        for (uint i=0; i<owners.length - 1; i++) {
             if (owners[i] == owner) {
                 owners[i] = owners[owners.length - 1];
                 break;
             }
+        }            
         owners.length -= 1;
-        if (required > owners.length)
+        if (required > owners.length) {
             changeRequirement(owners.length);
+        }            
         OwnerRemoval(owner);
     }
 
@@ -139,11 +142,12 @@ contract MultiSign {
      */
     function replaceOwner(address owner, address newOwner) public onlyWallet ownerExists(owner) ownerNotExists(newOwner)
     {
-        for(uint i=0; i<owners.length; i++)
+        for(uint i=0; i<owners.length; i++) {
             if (owners[i] == owner) {
                 owners[i] = newOwner;
                 break;
             }
+        }            
         isOwner[owner] = false;
         isOwner[newOwner] = true;
         OwnerRemoval(owner);
@@ -203,9 +207,9 @@ contract MultiSign {
         if (isConfirmed(transactionId)) {
             Transaction tx = transactions[transactionId];
             tx.executed = true;
-            if (tx.destination.call.value(tx.value)(tx.data))
-                Execution(transactionId);
-            else {
+            if (tx.destination.call.value(tx.value)(tx.data)) {
+                
+            } else {
                 ExecutionFailure(transactionId);
                 tx.executed = false;
             }
@@ -221,10 +225,12 @@ contract MultiSign {
     {
         uint count = 0;
         for (uint i=0; i<owners.length; i++) {
-            if (confirmations[transactionId][owners[i]])
+            if (confirmations[transactionId][owners[i]]) {
                 count += 1;
-            if (count == required)
+            }                
+            if (count == required) {
                 return true;
+            }                
         }
     }
 
@@ -256,9 +262,12 @@ contract MultiSign {
      */
     function getConfirmationCount(uint transactionId) public view returns (uint count)
     {
-        for (uint i=0; i<owners.length; i++)
-            if (confirmations[transactionId][owners[i]])
+        for (uint i=0; i<owners.length; i++) {
+            if (confirmations[transactionId][owners[i]]) {
                 count += 1;
+            }
+        }            
+                
     }
 
     /**
@@ -269,10 +278,12 @@ contract MultiSign {
      */
     function getTransactionCount(bool pending, bool executed) public view returns (uint count)
     {
-        for (uint i=0; i<transactionCount; i++)
-            if (   pending && !transactions[i].executed
-                || executed && transactions[i].executed)
+        for (uint i=0; i<transactionCount; i++) {
+            if (pending && !transactions[i].executed || executed && transactions[i].executed) {
                 count += 1;
+            }
+        }           
+                
     }
 
     /**
@@ -294,14 +305,17 @@ contract MultiSign {
         address[] memory confirmationsTemp = new address[](owners.length);
         uint count = 0;
         uint i;
-        for (i=0; i<owners.length; i++)
+        for (i=0; i<owners.length; i++) {
             if (confirmations[transactionId][owners[i]]) {
                 confirmationsTemp[count] = owners[i];
                 count += 1;
             }
+        }            
         _confirmations = new address[](count);
-        for (i=0; i<count; i++)
+        for (i=0; i<count; i++) {
             _confirmations[i] = confirmationsTemp[i];
+        }
+
     }
 
     
@@ -318,16 +332,19 @@ contract MultiSign {
         uint[] memory transactionIdsTemp = new uint[](transactionCount);
         uint count = 0;
         uint i;
-        for (i=0; i<transactionCount; i++)
+        for (i=0; i<transactionCount; i++) {
             if (   pending && !transactions[i].executed
                 || executed && transactions[i].executed)
             {
                 transactionIdsTemp[count] = i;
                 count += 1;
             }
+        }            
         _transactionIds = new uint[](to - from);
-        for (i=from; i<to; i++)
+        for (i=from; i<to; i++) {
             _transactionIds[i - from] = transactionIdsTemp[i];
+        }
+            
     }
 
 }
