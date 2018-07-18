@@ -48,13 +48,13 @@
 
 3、查询一下当前募集币数、代币合约地址、兑换比率、收ETH钱包、众筹开始时间、结束时间、是否关闭众筹
 ```
-weiRaised
-token
-rate
-wallet
-openingTime
-closingTime
-hasClosed
+weiRaised()
+token()
+rate()
+wallet()
+openingTime()
+closingTime()
+hasClosed()
 ```
 
 4、复制众筹合约地址`0xbbf289d846208c16edc8474705c748aff07732db`备用
