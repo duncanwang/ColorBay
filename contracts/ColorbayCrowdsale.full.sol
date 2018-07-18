@@ -82,13 +82,6 @@ contract Ownable {
     _;
   }
 
-  /**
-   * @dev Allows the current owner to relinquish control of the contract.
-   */
-  function renounceOwnership() public onlyOwner {
-    emit OwnershipRenounced(owner);
-    owner = address(0);
-  }
 
   /**
    * @dev Allows the current owner to transfer control of the contract to a newOwner.
@@ -826,11 +819,20 @@ contract TimedCrowdsale is Crowdsale {
 
 
 contract ColorbayCrowdsale is TimedCrowdsale {
+    address public owner;
 
     constructor(uint256 _openingTime, uint256 _closingTime, uint256 _rate, address _wallet, ERC20 _token) public 
     Crowdsale(_rate, _wallet, _token)
     TimedCrowdsale(_openingTime, _closingTime) {
-        
+        owner = msg.sender;
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+      require(msg.sender == owner);
+      _;
     }
 
     function () external payable {
@@ -846,10 +848,6 @@ contract ColorbayCrowdsale is TimedCrowdsale {
       require(_closingTime >= _openingTime);
       openingTime = _openingTime;
       closingTime = _closingTime;
-    }
-
-    function yyy() public {
-      
     }
 
 
