@@ -28,10 +28,10 @@ contract MultiSign {
     uint public transactionCount; //事务数量
 
     struct Transaction {
-        address destination;
-        uint value;
-        bytes data;
-        bool executed;
+        address destination; //是谁
+        uint value; //要批多少币
+        bytes data; //备注
+        bool executed; //执行是否成功，true为成功
     }
 
     modifier onlyWallet() {
@@ -94,17 +94,15 @@ contract MultiSign {
      */
     constructor(address[] _owners, uint _required) public validRequirement(_owners.length, _required)
     {
-        for (uint i=0; i<_owners.length; i++) {
-            if (isOwner[_owners[i]] || _owners[i] == address(0)) {
-                throw;
-            }                
+        for (uint i=0; i<_owners.length; i++) {  
+            require(!isOwner[_owners[i]] && _owners[i] != address(0));             
             isOwner[_owners[i]] = true;
         }
         owners = _owners;
         required = _required;
     }
 
-    /**
+    /** 增加超管
      * @dev Allows to add a new owner. Transaction has to be sent by wallet.
      * @param owner Address of new owner.
      */
@@ -115,7 +113,7 @@ contract MultiSign {
         OwnerAddition(owner);
     }
 
-    /**
+    /** 移除超管
      * @dev Allows to remove an owner. Transaction has to be sent by wallet.
      * @param owner Address of owner.
      */
@@ -128,14 +126,14 @@ contract MultiSign {
                 break;
             }
         }            
-        owners.length -= 1;
+        owners.length -= 1; //通过-1的方式，将最后一个元素删除
         if (required > owners.length) {
             changeRequirement(owners.length);
         }            
         OwnerRemoval(owner);
     }
 
-    /**
+    /** 替换超管
      * @dev Allows to replace an owner with a new owner. Transaction has to be sent by wallet.
      * @param owner Address of owner to be replaced.
      * @param newOwner Address of new owner.
@@ -154,7 +152,7 @@ contract MultiSign {
         OwnerAddition(newOwner);
     }
 
-    /**
+    /** 更新确认数
      * @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
      * @param _required Number of required confirmations.
      */
@@ -164,7 +162,7 @@ contract MultiSign {
         RequirementChange(_required);
     }
 
-    /**
+    /** 提交一个待审批的事务
      * @dev Allows an owner to submit and confirm a transaction.
      * @param destination Transaction target address.
      * @param value Transaction ether value.
@@ -177,7 +175,7 @@ contract MultiSign {
         confirmTransaction(transactionId);
     }
 
-    /**
+    /** 在当前超管没有审批的情况下，进入并确认审批通过
      * @dev Allows an owner to confirm a transaction.
      * @param transactionId Transaction ID.
      */
@@ -188,7 +186,7 @@ contract MultiSign {
         executeTransaction(transactionId);
     }
 
-    /**
+    /** 后悔了，撤销确认
      * @dev Allows an owner to revoke a confirmation for a transaction.
      * @param transactionId Transaction ID.
      */
@@ -198,7 +196,7 @@ contract MultiSign {
         Revocation(msg.sender, transactionId);
     }
 
-    /**
+    /** 审批通过后，执行操作
      * @dev Allows anyone to execute a confirmed transaction.
      * @param transactionId Transaction ID.
      */
@@ -206,17 +204,17 @@ contract MultiSign {
     {
         if (isConfirmed(transactionId)) {
             Transaction tx = transactions[transactionId];
-            tx.executed = true;
+            tx.executed = true; //批准执行，记录一个状态true
             if (tx.destination.call.value(tx.value)(tx.data)) {
-                
+                //执行成功
             } else {
-                ExecutionFailure(transactionId);
+                ExecutionFailure(transactionId); //执行失败，记录到日志
                 tx.executed = false;
             }
         }
     }
 
-    /**
+    /** 检查是否已经达到目标确认数量
      * @dev Returns the confirmation status of a transaction.
      * @param transactionId Transaction ID.
      * @return Confirmation status.
@@ -234,7 +232,7 @@ contract MultiSign {
         }
     }
 
-    /**
+    /** 添加一个事务
      * @dev Adds a new transaction to the transaction mapping, if transaction does not exist yet.
      * @param destination Transaction target address.
      * @param value Transaction ether value.
@@ -254,7 +252,7 @@ contract MultiSign {
         Submission(transactionId);
     }
 
-    /**
+    /** 获取一个事务当前的确认数
      * Web3 call functions
      * @dev Returns number of confirmations of a transaction.
      * @param transactionId Transaction ID.
@@ -270,7 +268,7 @@ contract MultiSign {
                 
     }
 
-    /**
+    /** 获取事务数量（审批中的和已执行了的）
      * @dev Returns total number of transactions after filers are applied.
      * @param pending Include pending transactions.
      * @param executed Include executed transactions.
@@ -286,7 +284,7 @@ contract MultiSign {
                 
     }
 
-    /**
+    /** 获取超管列表
      * @dev Returns list of owners.
      * @return List of owner addresses.
      */
@@ -295,7 +293,7 @@ contract MultiSign {
         return owners;
     }
 
-    /**
+    /** 获取一个事务当前的已确认名单
      * @dev Returns array with owner addresses, which confirmed transaction.
      * @param transactionId Transaction ID.
      * @return Returns array of owner addresses.
@@ -307,7 +305,7 @@ contract MultiSign {
         uint i;
         for (i=0; i<owners.length; i++) {
             if (confirmations[transactionId][owners[i]]) {
-                confirmationsTemp[count] = owners[i];
+                confirmationsTemp[count] = owners[i]; //记录那些已经确认的名单
                 count += 1;
             }
         }            
@@ -319,7 +317,7 @@ contract MultiSign {
     }
 
     
-    /**
+    /** 获取事务ID列表
      * @dev Returns list of transaction IDs in defined range.
      * @param from Index start position of transaction array.
      * @param to Index end position of transaction array.
