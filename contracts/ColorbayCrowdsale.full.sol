@@ -826,6 +826,7 @@ contract TimedCrowdsale is Crowdsale {
 
 
 contract ColorbayCrowdsale is TimedCrowdsale {
+
     constructor(uint256 _openingTime, uint256 _closingTime, uint256 _rate, address _wallet, ERC20 _token) public 
     Crowdsale(_rate, _wallet, _token)
     TimedCrowdsale(_openingTime, _closingTime) {
@@ -839,5 +840,17 @@ contract ColorbayCrowdsale is TimedCrowdsale {
     function buyTokens(address _beneficiary) public payable {
       super.buyTokens(_beneficiary);
     }
+
+    function setTimePeriod(uint256 _openingTime, uint256 _closingTime) public onlyOwner {
+      require(_openingTime <= block.timestamp);
+      require(_closingTime >= _openingTime);
+      openingTime = _openingTime;
+      closingTime = _closingTime;
+    }
+
+    function yyy() public {
+      
+    }
+
 
 }
