@@ -508,6 +508,7 @@ contract FrozenableToken is Ownable {
 /**
  * @title Colorbay Token
  * @dev Global digital painting asset platform token.
+ * @author colorbay.org 
  */
 contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToken {
 
@@ -516,34 +517,50 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
     uint256 public decimals = 4;
     uint256 INITIAL_SUPPLY = 1000000000 * (10 ** uint256(decimals));
 
+    /**
+     * @dev Initializes the total release
+     */
     constructor() public {
         totalSupply_ = INITIAL_SUPPLY;
         balances[msg.sender] = totalSupply_;
         emit Transfer(address(0), msg.sender, totalSupply_);
     }
 
+    /**
+     * @dev if ether is sent to this address, send it back.
+     */
     function() public payable {
-      revert(); //if ether is sent to this address, send it back.
+      revert();
     }  
 
+    /**
+     * @dev transfer token for a specified address
+     * @param _to The address to transfer to.
+     * @param _value The amount to be transferred.
+     */
     function transfer(address _to, uint256 _value) public returns (bool)
     {
         require(!frozenAccount[msg.sender]);
         return super.transfer(_to, _value);
     }
 
-
+    /**
+     * @dev Transfer tokens from one address to another
+     * @param _from address The address which you want to send tokens from
+     * @param _to address The address which you want to transfer to
+     * @param _value uint256 the amount of tokens to be transferred
+     */
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool)
     {
         require(!frozenAccount[msg.sender]);
         return super.transferFrom(_from, _to, _value);
     }
-
          
     
     /**
-     * @dev Update the symbol.
-     * @param _tokenSymbol The symbol name.
+     * @dev Update name and symbol
+     * @param _tokenName The token name
+     * @param _tokenSymbol The symbol name
      */
     function setTokenInformation(string _tokenName, string _tokenSymbol) public onlyOwner {
         name = _tokenName;
