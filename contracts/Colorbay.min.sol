@@ -528,14 +528,14 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
 
     function transfer(address _to, uint256 _value) public returns (bool)
     {
-        require(!super.frozenAccount[msg.sender]);
+        require(!frozenAccount[msg.sender]);
         return super.transfer(_to, _value);
     }
 
 
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool)
     {
-        require(!super.frozenAccount[msg.sender]);
+        require(!frozenAccount[msg.sender]);
         return super.transferFrom(_from, _to, _value);
     }
 
