@@ -27,13 +27,18 @@ contract MultiSign {
     uint public required;//需求
     uint public transactionCount; //事务数量
 
+    ERC20 public token;
+
     struct Transaction {
         address destination; //是谁
         uint value; //要批多少币
         bytes data; //备注
         bool executed; //执行是否成功，true为成功
     }
-
+//0x61626300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100
+//0x6162630000000000000000000000000000000000000000000000000000000000
+//0x0000000000000000000000000000000000000000000000000000000000000100
+//16进制，用4位来表示一个字符，8个字符即4个字节
     modifier onlyWallet() {
         require(msg.sender == address(this));
         _;
@@ -92,7 +97,7 @@ contract MultiSign {
      * @param _owners List of initial owners.
      * @param _required Number of required confirmations.
      */
-    constructor(address[] _owners, uint _required) public validRequirement(_owners.length, _required)
+    constructor(address[] _owners, uint _required, ERC20 _token) public validRequirement(_owners.length, _required)
     {
         for (uint i=0; i<_owners.length; i++) {  
             require(!isOwner[_owners[i]] && _owners[i] != address(0));             
@@ -100,6 +105,7 @@ contract MultiSign {
         }
         owners = _owners;
         required = _required;
+        token = _token;
     }
 
     /** 
