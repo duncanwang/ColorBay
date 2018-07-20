@@ -526,13 +526,6 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
     }
 
     /**
-     * @dev if ether is sent to this address, send it back.
-     */
-    function() public payable {
-      revert();
-    }  
-
-    /**
      * @dev transfer token for a specified address
      * @param _to The address to transfer to.
      * @param _value The amount to be transferred.
