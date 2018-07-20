@@ -83,14 +83,6 @@ contract Ownable {
   }
 
   /**
-   * @dev Allows the current owner to relinquish control of the contract.
-   */
-  function renounceOwnership() public onlyOwner {
-    emit OwnershipRenounced(owner);
-    owner = address(0);
-  }
-
-  /**
    * @dev Allows the current owner to transfer control of the contract to a newOwner.
    * @param _newOwner The address to transfer ownership to.
    */
@@ -503,23 +495,32 @@ contract BurnableToken is BasicToken {
   }
 }
 
+/**
+ * @title Frozenable Token
+ * @dev Illegal address that can be frozened.
+ */
+contract FrozenableToken is Ownable {
+    event UpdatedTokenInformation(string name, string symbol);
+    mapping (address => bool) public frozenAccount;
+    event FrozenFunds(address indexed to, bool frozen);
+
+    function freezeAccount(address _to, bool freeze) public onlyOwner {
+        frozenAccount[_to] = freeze;
+        emit FrozenFunds(_to, freeze);
+    }
+}
+
 
 /**
  * @title Colorbay Token
  * @dev Global digital painting asset platform token.
  */
-contract Colorbay is PausableToken, MintableToken, BurnableToken {
-    using SafeMath for uint256;
+contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToken {
 
     string public name = "Colorbay Token";
     string public symbol = "CLB";
     uint256 public decimals = 4;
     uint256 INITIAL_SUPPLY = 1000000000 * (10 ** uint256(decimals));
-
-    event UpdatedTokenInformation(string name, string symbol);
-
-    mapping (address => bool) public frozenAccount;
-    event FrozenFunds(address indexed to, bool frozen);
 
     constructor() public {
         totalSupply_ = INITIAL_SUPPLY;
@@ -533,21 +534,18 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken {
 
     function transfer(address _to, uint256 _value) public returns (bool)
     {
-        require(!frozenAccount[msg.sender]);
+        require(!super.frozenAccount[msg.sender]);
         return super.transfer(_to, _value);
     }
 
 
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool)
     {
-        require(!frozenAccount[msg.sender]);
+        require(!super.frozenAccount[msg.sender]);
         return super.transferFrom(_from, _to, _value);
     }
 
-    function freezeAccount(address _to, bool freeze) public onlyOwner {
-        frozenAccount[_to] = freeze;
-        emit FrozenFunds(_to, freeze);
-    }     
+         
     
     /**
      * @dev Update the symbol.
