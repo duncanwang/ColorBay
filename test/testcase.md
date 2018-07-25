@@ -83,7 +83,8 @@ balanceOf("0x14723a09acff6d2a60dcdf7aa4aff308fddc160c")
 ```
 transfer("0xca35b7d915458ef540ade6068dfe2f44e8fa733c", "10000,0000") #约定：运行时，去除数额中的逗号，否则会出错
 ```
-【预计结果】： 失败；
+【预计结果】：失败
+
 ---
 【测试结果】：
 结果失败，张三下CLB余额未减少，但是ETH GAS减少了。
@@ -125,9 +126,15 @@ transferFrom("0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0x583031d1113ad414f02
 
 
 异常测试用例：
-前一步授权20个亿，然后执行转账3000个CLB。
+前一步授权20个亿，然后执行转账12个亿CLB；
+transferFrom("0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0x583031d1113ad414f02576bd6afabfb302140225","1200000000,0000")
+【结果】失败，超过限额
 
-【结果 -  失败】 执行到LINE 215行失败，原因未明。
+前一步授权20个亿，然后执行转账3000个CLB；
+transferFrom("0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0x583031d1113ad414f02576bd6afabfb302140225","3000,0000")
+【结果】成功。
+
+【结果 -  失败】 执行到LINE 215行失败
 decoded output  的结果为false
 
 transact to Colorbay.transferFrom errored: VM error: revert.
@@ -152,14 +159,18 @@ allowance("0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0x4b0897b0513fdc7c541b6d
 increaseApproval("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db","4000,0000")
 ```
 重复第6步，查询授权额度
-8、切换到管理员账号`0xca3...a733c`下，给李四账号`0x4b0...4d2db`授权额度减少4000个CLB，执行:
 
+8、切换到管理员账号`0xca3...a733c`下，给李四账号`0x4b0...4d2db`授权额度减少4000个CLB，执行:
 ```
 decreaseApproval("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db", "4000,0000")
 ```
 重复第6步，查询授权额度
+异常用例：
+（1）减少的授权额度，超过总授权数
+decreaseApproval("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db", "4000,0000")
+（2）减少的授权额度，超过父账户总余额
+decreaseApproval("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db", "4000,0000")
 
-【2018.07.24】测试到此。
 
 #### 用例5——锁/解仓、超管
 只有管理员拥有操作权限
@@ -205,14 +216,23 @@ frozenAccount("0x583031d1113ad414f02576bd6afabfb302140225")
 ```
 freezeAccount("0x583031d1113ad414f02576bd6afabfb302140225", true)
 ```
+【结果】冻结失败，正常。
+
+[异常用例] 管理员冻结自己呢？
+```
+freezeAccount("0xca35b7d915458ef540ade6068dfe2f44e8fa733c", true)
+```
+【结果】冻结成功。
+
 3、切换到管理员账号`0xca3...a733c`下，冻结王五账号`0x583...40225`
 ```
 freezeAccount("0x583031d1113ad414f02576bd6afabfb302140225", true)
 ```
 4、切换到王五账号`0x583...40225`下，给李四账号`0x4b0...4d2db`转账1000个CLB
 ```
-transfer("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db", "1000,000000000000000000")
+transfer("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db", "1000,0000")
 ```
+【结果】提示失败，回滚。正常。
 
 5、切换到管理员账号`0xca3...a733c`下，解冻王五账号`0x583...40225`
 ```
@@ -234,11 +254,11 @@ totalSupply
 ```
 3、切换到李四账号`0x4b0...4d2db`下，增发10000个CLB，将会报错，因为没有权限：
 ```
-mint("0xca35b7d915458ef540ade6068dfe2f44e8fa733c", "10000,000000000000000000")
+mint("0xca35b7d915458ef540ade6068dfe2f44e8fa733c", "10000,0000")
 ```
 4、切换到管理员账号`0xca3...a733c`下，增发10000个CLB
 ```
-mint("0xca35b7d915458ef540ade6068dfe2f44e8fa733c", "10000,000000000000000000")
+mint("0xca35b7d915458ef540ade6068dfe2f44e8fa733c", "10000,0000")
 ```
 重复第2步
 
@@ -258,13 +278,16 @@ totalSupply
 ```
 2、切换到李四账号`0x4b0...4d2db`下，燃烧代币总量中的10000个CLB，将会报错，因为没有权限：
 ```
-burn("10000,000000000000000000")
+burn("10000,0000")
 ```
+【结果】burn谁都可以做，用例设计错误，跟代码不一致。
+
 3、切换到管理员账号`0xca3...a733c`下，燃烧代币总量中的10000个CLB
 ```
-burn("10000,000000000000000000")
+burn("10000,0000")
 ```
 重复第1步
+
 
 #### 用例9——更新代币名字和简称
 只有管理员拥有操作权限
@@ -279,6 +302,8 @@ setTokenInformation("Colorbay Token 2", "CLB2")
 setTokenInformation("Colorbay Token 2", "CLB2")
 ```
 重复第1步
+
+
 
 #### 用例10——更换合约管理员
 只有管理员拥有操作权限
@@ -297,8 +322,8 @@ owner()
 ```
 4、用原管理员账号，做增发、燃烧、锁/解仓、更新代币名字和简称操作，将会失败，因为没有权限
 ```
-burn("10000,000000000000000000") #增发
-mint("0xca35b7d915458ef540ade6068dfe2f44e8fa733c", "10000,000000000000000000") #燃烧
+burn("10000,0000") #增发
+mint("0xca35b7d915458ef540ade6068dfe2f44e8fa733c", "10000,0000") #燃烧
 pause() #锁仓
 unpause() #解仓
 setTokenInformation("Colorbay Token 3", "CBT3")
@@ -307,4 +332,5 @@ setTokenInformation("Colorbay Token 3", "CBT3")
 ```
 fallback()
 ```
+【结果】该函数不存在。
 
