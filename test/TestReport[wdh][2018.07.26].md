@@ -21,7 +21,7 @@
  辉哥的测试用例是在欧阳自测的基础上更新的，具体参考链接：
    https://github.com/duncanwang/ColorBay/blob/master/test/testcase.md
    
- ##2.1 测试问题：approve函数测试时，授权数量超过账户总数也能授权成功。
+ ## 2.1 测试问题：approve函数测试时，授权数量超过账户总数也能授权成功。
  发行总量为10亿，授权为20亿，反馈结果为成功。
  ```
  approve("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db", "2000000000,0000")
