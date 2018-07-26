@@ -1,5 +1,5 @@
 #1 代码走查
-## 1.1 评审意见：缺少对totalSupply_做一个requier检查
+## 1.1 评审意见：缺少对totalSupply_做一个requier检查   
 ```
    function _burn(address _who, uint256 _value) internal 
   {
