@@ -551,8 +551,8 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
     
     /**
      * @dev Update name and symbol
-     * @param _tokenName The token name
-     * @param _tokenSymbol The symbol name
+     * @param _name The token name
+     * @param _symbol The symbol name
      */
     function setTokenInformation(string _name, string _symbol) public onlyOwner {
         name = _name;
