@@ -1,4 +1,4 @@
-#1. 代码走查
+#1 代码走查
 ## 1.1 评审意见：缺少对totalSupply_做一个requier检查
 ```
    function _burn(address _who, uint256 _value) internal 
@@ -17,7 +17,7 @@
  建议增加的评审意见未能与作者达成一致，待后续流程讨论。
  require((_value <= totalSupply);
 
- #2. 内部测试
+ #2 内部测试
  辉哥的测试用例是在欧阳自测的基础上更新的，具体参考链接：
    https://github.com/duncanwang/ColorBay/blob/master/test/testcase.md
    
@@ -50,7 +50,7 @@
   **【结论】** 
   评审者和作者未达成一致意见。
 
-#5. 附测试定稿智能合约代码
+#3 附测试定稿智能合约代码
 以下为2018.07.26 11:00之前走查和测试使用的智能合约代码。
 最新的代码链接：https://github.com/vsiryxm/ColorBay/blob/master/contracts/Colorbay.min.sol
 
