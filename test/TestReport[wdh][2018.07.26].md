@@ -1,4 +1,4 @@
-#1 代码走查
+# 1 代码走查
 ## 1.1 评审意见：缺少对totalSupply_做一个requier检查   
 ```
    function _burn(address _who, uint256 _value) internal 
@@ -17,7 +17,7 @@
  建议增加的评审意见未能与作者达成一致，待后续流程讨论。
  require((_value <= totalSupply);
 
- #2 内部测试
+ # 2 内部测试
  辉哥的测试用例是在欧阳自测的基础上更新的，具体参考链接：
    https://github.com/duncanwang/ColorBay/blob/master/test/testcase.md
    
@@ -30,7 +30,7 @@
   作者认为即使授权了，也不会转账成功，所以不改。
   评审者认为授权额度至少不能超过账户的总额，需要做限制。
 
-   ##2.2 测试问题：increaseApproval函数测试时，增加授权数量超过账户总数也能授权成功。
+   ## 2.2 测试问题：increaseApproval函数测试时，增加授权数量超过账户总数也能授权成功。
    ```
    increaseApproval("0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db"）
    ```
@@ -38,7 +38,7 @@
      **【结论】** 
        作者认为即使授权了，也不会转账成功，所以不改。
        评审者认为授权额度至少不能超过账户的总额，需要做限制。
-  ##2.3 安全起见，默认情况下不允许增加 mintingFinished = true。允许增发是一个临时状态。
+  ## 2.3 安全起见，默认情况下不允许增加 mintingFinished = true。允许增发是一个临时状态。
   目前代码默认允许增发。
   ```
   bool public mintingFinished = false;
@@ -46,11 +46,11 @@
   **【结论】** 
   评审者和作者未达成一致意见。
   
-  ##2.4 增发，销毁可能作恶或者白皮书不需要的功能要去除么，以防止治理不善或者黑客攻击？
+  ## 2.4 增发，销毁可能作恶或者白皮书不需要的功能要去除么，以防止治理不善或者黑客攻击？
   **【结论】** 
   评审者和作者未达成一致意见。
 
-#3 附测试定稿智能合约代码
+# 3 附测试定稿智能合约代码
 以下为2018.07.26 11:00之前走查和测试使用的智能合约代码。
 最新的代码链接：https://github.com/vsiryxm/ColorBay/blob/master/contracts/Colorbay.min.sol
 
