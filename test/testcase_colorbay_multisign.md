@@ -232,6 +232,7 @@ addOwner("0x14723a09acff6d2a60dcdf7aa4aff308fddc160c")
 ```
 
 #### 用例9——替换审批委员会成员
+1、用李四账号`0x4b0...4d2db`替换掉张三账号`0x147...c160c`
 ```
 replaceOwner("0x14723a09acff6d2a60dcdf7aa4aff308fddc160c", "0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db")
 ```
