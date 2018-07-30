@@ -478,7 +478,7 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
     /**
      * if ether is sent to this address, send it back.
      */
-    function () payable {
+    function() public payable {
         revert();
     }
 
