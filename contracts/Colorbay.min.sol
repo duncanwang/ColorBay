@@ -4,7 +4,8 @@ pragma solidity ^0.4.23;
  * @title SafeMath
  * @dev Math operations with safety checks that throw on error
  */
-library SafeMath {
+library SafeMath 
+{
 
   /**
    * @dev Multiplies two numbers, throws on overflow.
@@ -55,7 +56,8 @@ library SafeMath {
  * @dev The Ownable contract has an owner address, and provides basic authorization control
  * functions, this simplifies the implementation of "user permissions".
  */
-contract Ownable {
+contract Ownable 
+{
   address public owner;
 
   event OwnershipRenounced(address indexed previousOwner);
@@ -105,12 +107,12 @@ contract Ownable {
  * @title Pausable
  * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
-contract Pausable is Ownable {
+contract Pausable is Ownable 
+{
   event Pause();
   event Unpause();
 
   bool public paused = false;
-
 
   /**
    * @dev Modifier to make a function callable only when the contract is not paused.
@@ -143,6 +145,7 @@ contract Pausable is Ownable {
     paused = false;
     emit Unpause();
   }
+
 }
 
 /**
@@ -150,7 +153,8 @@ contract Pausable is Ownable {
  * @dev Simpler version of ERC20 interface
  * @dev see https://github.com/ethereum/EIPs/issues/179
  */
-contract ERC20Basic {
+contract ERC20Basic 
+{
   function totalSupply() public view returns (uint256);
   function balanceOf(address who) public view returns (uint256);
   function transfer(address to, uint256 value) public returns (bool);
@@ -161,26 +165,28 @@ contract ERC20Basic {
  * @title ERC20 interface
  * @dev see https://github.com/ethereum/EIPs/issues/20
  */
-contract ERC20 is ERC20Basic {
-  function allowance(address owner, address spender)
-    public view returns (uint256);
+contract ERC20 is ERC20Basic 
+{
+  function allowance(address owner, address spender) public view returns (uint256);
 
-  function transferFrom(address from, address to, uint256 value)
-    public returns (bool);
+  function transferFrom(address from, address to, uint256 value) public returns (bool);
 
   function approve(address spender, uint256 value) public returns (bool);
+  
   event Approval(
     address indexed owner,
     address indexed spender,
     uint256 value
   );
+
 }
 
 /**
  * @title Basic token
  * @dev Basic version of StandardToken, with no allowances.
  */
-contract BasicToken is ERC20Basic {
+contract BasicToken is ERC20Basic 
+{
   using SafeMath for uint256;
 
   mapping(address => uint256) balances;
@@ -227,10 +233,10 @@ contract BasicToken is ERC20Basic {
  * @dev https://github.com/ethereum/EIPs/issues/20
  * @dev Based on code by FirstBlood: https://github.com/Firstbloodio/token/blob/master/smart_contract/FirstBloodToken.sol
  */
-contract StandardToken is ERC20, BasicToken {
+contract StandardToken is ERC20, BasicToken 
+{
 
   mapping (address => mapping (address => uint256)) internal allowed;
-
 
   /**
    * @dev Transfer tokens from one address to another
@@ -238,14 +244,7 @@ contract StandardToken is ERC20, BasicToken {
    * @param _to address The address which you want to transfer to
    * @param _value uint256 the amount of tokens to be transferred
    */
-  function transferFrom(
-    address _from,
-    address _to,
-    uint256 _value
-  )
-    public
-    returns (bool)
-  {
+  function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
     require(_to != address(0));
     require(_value <= balances[_from]);
     require(_value <= allowed[_from][msg.sender]);
@@ -279,14 +278,7 @@ contract StandardToken is ERC20, BasicToken {
    * @param _spender address The address which will spend the funds.
    * @return A uint256 specifying the amount of tokens still available for the spender.
    */
-  function allowance(
-    address _owner,
-    address _spender
-   )
-    public
-    view
-    returns (uint256)
-  {
+  function allowance(address _owner, address _spender) public view returns (uint256) {
     return allowed[_owner][_spender];
   }
 
@@ -300,15 +292,8 @@ contract StandardToken is ERC20, BasicToken {
    * @param _spender The address which will spend the funds.
    * @param _addedValue The amount of tokens to increase the allowance by.
    */
-  function increaseApproval(
-    address _spender,
-    uint256 _addedValue
-  )
-    public
-    returns (bool)
-  {
-    allowed[msg.sender][_spender] = (
-      allowed[msg.sender][_spender].add(_addedValue));
+  function increaseApproval(address _spender, uint256 _addedValue) public returns (bool) {
+    allowed[msg.sender][_spender] = (allowed[msg.sender][_spender].add(_addedValue));
     emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
     return true;
   }
@@ -323,13 +308,7 @@ contract StandardToken is ERC20, BasicToken {
    * @param _spender The address which will spend the funds.
    * @param _subtractedValue The amount of tokens to decrease the allowance by.
    */
-  function decreaseApproval(
-    address _spender,
-    uint256 _subtractedValue
-  )
-    public
-    returns (bool)
-  {
+  function decreaseApproval(address _spender, uint256 _subtractedValue) public returns (bool) {
     uint256 oldValue = allowed[msg.sender][_spender];
     if (_subtractedValue > oldValue) {
       allowed[msg.sender][_spender] = 0;
@@ -347,63 +326,29 @@ contract StandardToken is ERC20, BasicToken {
  * @title Pausable token
  * @dev StandardToken modified with pausable transfers.
  **/
-contract PausableToken is StandardToken, Pausable {
+contract PausableToken is StandardToken, Pausable 
+{
 
-  function transfer(
-    address _to,
-    uint256 _value
-  )
-    public
-    whenNotPaused
-    returns (bool)
-  {
+  function transfer(address _to, uint256 _value) public whenNotPaused returns (bool) {
     return super.transfer(_to, _value);
   }
 
-  function transferFrom(
-    address _from,
-    address _to,
-    uint256 _value
-  )
-    public
-    whenNotPaused
-    returns (bool)
-  {
+  function transferFrom(address _from, address _to, uint256 _value) public whenNotPaused returns (bool) {
     return super.transferFrom(_from, _to, _value);
   }
 
-  function approve(
-    address _spender,
-    uint256 _value
-  )
-    public
-    whenNotPaused
-    returns (bool)
-  {
+  function approve(address _spender, uint256 _value) public whenNotPaused returns (bool) {
     return super.approve(_spender, _value);
   }
 
-  function increaseApproval(
-    address _spender,
-    uint256 _addedValue
-  )
-    public
-    whenNotPaused
-    returns (bool success)
-  {
+  function increaseApproval(address _spender, uint256 _addedValue) public whenNotPaused returns (bool success) {
     return super.increaseApproval(_spender, _addedValue);
   }
 
-  function decreaseApproval(
-    address _spender,
-    uint256 _subtractedValue
-  )
-    public
-    whenNotPaused
-    returns (bool success)
-  {
+  function decreaseApproval(address _spender, uint256 _subtractedValue) public whenNotPaused returns (bool success) {
     return super.decreaseApproval(_spender, _subtractedValue);
   }
+
 }
 
 /**
@@ -412,12 +357,14 @@ contract PausableToken is StandardToken, Pausable {
  * @dev Issue: * https://github.com/OpenZeppelin/openzeppelin-solidity/issues/120
  * Based on code by TokenMarketNet: https://github.com/TokenMarketNet/ico/blob/master/contracts/MintableToken.sol
  */
-contract MintableToken is StandardToken, Ownable {
+contract MintableToken is StandardToken, Ownable 
+{
+
   event Mint(address indexed to, uint256 amount);
+
   event MintFinished();
 
   bool public mintingFinished = false;
-
 
   modifier canMint() {
     require(!mintingFinished);
@@ -430,15 +377,7 @@ contract MintableToken is StandardToken, Ownable {
    * @param _amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
-  function mint(
-    address _to,
-    uint256 _amount
-  )
-    onlyOwner
-    canMint
-    public
-    returns (bool)
-  {
+  function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
     totalSupply_ = totalSupply_.add(_amount);
     balances[_to] = balances[_to].add(_amount);
     emit Mint(_to, _amount);
@@ -455,6 +394,7 @@ contract MintableToken is StandardToken, Ownable {
     emit MintFinished();
     return true;
   }
+
 }
 
 
@@ -462,7 +402,8 @@ contract MintableToken is StandardToken, Ownable {
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).
  */
-contract BurnableToken is BasicToken {
+contract BurnableToken is BasicToken 
+{
 
   event Burn(address indexed burner, uint256 value);
 
@@ -470,13 +411,11 @@ contract BurnableToken is BasicToken {
    * @dev Burns a specific amount of tokens.
    * @param _value The amount of token to be burned.
    */
-  function burn(uint256 _value) public 
-  {
+  function burn(uint256 _value) public {
     _burn(msg.sender, _value);
   }
 
-  function _burn(address _who, uint256 _value) internal 
-  {
+  function _burn(address _who, uint256 _value) internal {
     require(_value <= balances[_who]);
     // no need to require value <= totalSupply, since that would imply the
     // sender's balance is greater than the totalSupply, which *should* be an assertion failure
@@ -486,21 +425,30 @@ contract BurnableToken is BasicToken {
     emit Burn(_who, _value);
     emit Transfer(_who, address(0), _value);
   }
+
 }
 
 /**
  * @title Frozenable Token
  * @dev Illegal address that can be frozened.
  */
-contract FrozenableToken is Ownable {
-    event UpdatedTokenInformation(string name, string symbol);
+contract FrozenableToken is Ownable 
+{
+    
     mapping (address => bool) public frozenAccount;
+
     event FrozenFunds(address indexed to, bool frozen);
+
+    modifier whenNotFreeze() {
+      require(!frozenAccount[msg.sender]);
+      _;
+    }
 
     function freezeAccount(address _to, bool freeze) public onlyOwner {
         frozenAccount[_to] = freeze;
         emit FrozenFunds(_to, freeze);
     }
+
 }
 
 
@@ -513,8 +461,10 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
 
     string public name = "Colorbay Token";
     string public symbol = "CLB";
-    uint256 public decimals = 4;
+    uint256 public decimals = 18;
     uint256 INITIAL_SUPPLY = 1000000000 * (10 ** uint256(decimals));
+
+    event UpdatedSymbol(string symbol);
 
     /**
      * @dev Initializes the total release
@@ -526,13 +476,18 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
     }
 
     /**
+     * if ether is sent to this address, send it back.
+     */
+    function () payable {
+        revert();
+    }
+
+    /**
      * @dev transfer token for a specified address
      * @param _to The address to transfer to.
      * @param _value The amount to be transferred.
      */
-    function transfer(address _to, uint256 _value) public returns (bool)
-    {
-        require(!frozenAccount[msg.sender]);
+    function transfer(address _to, uint256 _value) public whenNotFreeze returns (bool) {
         return super.transfer(_to, _value);
     }
 
@@ -542,22 +497,17 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
      * @param _to address The address which you want to transfer to
      * @param _value uint256 the amount of tokens to be transferred
      */
-    function transferFrom(address _from, address _to, uint256 _value) public returns (bool)
-    {
-        require(!frozenAccount[msg.sender]);
+    function transferFrom(address _from, address _to, uint256 _value) public whenNotFreeze returns (bool) {
         return super.transferFrom(_from, _to, _value);
-    }
-         
+    }        
     
     /**
-     * @dev Update name and symbol
-     * @param _name The token name
+     * @dev Update symbol
      * @param _symbol The symbol name
      */
-    function setTokenInformation(string _name, string _symbol) public onlyOwner {
-        name = _name;
+    function setSymbol(string _symbol) public onlyOwner {
         symbol = _symbol;
-        emit UpdatedTokenInformation(name, symbol);
+        emit UpdatedSymbol(symbol);
     } 
 
 }
