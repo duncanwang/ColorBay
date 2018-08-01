@@ -8,32 +8,6 @@ library SafeMath
 {
 
   /**
-   * @dev Multiplies two numbers, throws on overflow.
-   */
-  function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {
-    // Gas optimization: this is cheaper than asserting 'a' not being zero, but the
-    // benefit is lost if 'b' is also tested.
-    // See: https://github.com/OpenZeppelin/openzeppelin-solidity/pull/522
-    if (a == 0) {
-      return 0;
-    }
-
-    c = a * b;
-    assert(c / a == b);
-    return c;
-  }
-
-  /**
-   * @dev Integer division of two numbers, truncating the quotient.
-   */
-  function div(uint256 a, uint256 b) internal pure returns (uint256) {
-    // assert(b > 0); // Solidity automatically throws when dividing by 0
-    // uint256 c = a / b;
-    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
-    return a / b;
-  }
-
-  /**
    * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
    */
   function sub(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -49,6 +23,7 @@ library SafeMath
     assert(c >= a);
     return c;
   }
+  
 }
 
 /**
@@ -267,6 +242,7 @@ contract StandardToken is ERC20, BasicToken
    * @param _value The amount of tokens to be spent.
    */
   function approve(address _spender, uint256 _value) public returns (bool) {
+    require((_value == 0) || (allowed[msg.sender][_spender] == 0));
     allowed[msg.sender][_spender] = _value;
     emit Approval(msg.sender, _spender, _value);
     return true;
@@ -439,14 +415,14 @@ contract FrozenableToken is Ownable
 
     event FrozenFunds(address indexed to, bool frozen);
 
-    modifier whenNotFreeze() {
-      require(!frozenAccount[msg.sender]);
+    modifier whenNotFreeze(address _who) {
+      require(!frozenAccount[msg.sender] && !frozenAccount[_who]);
       _;
     }
 
-    function freezeAccount(address _to, bool freeze) public onlyOwner {
-        frozenAccount[_to] = freeze;
-        emit FrozenFunds(_to, freeze);
+    function freezeAccount(address _to, bool _freeze) public onlyOwner {
+        frozenAccount[_to] = _freeze;
+        emit FrozenFunds(_to, _freeze);
     }
 
 }
@@ -463,8 +439,6 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
     string public symbol = "CLB";
     uint256 public decimals = 18;
     uint256 INITIAL_SUPPLY = 1000000000 * (10 ** uint256(decimals));
-
-    event UpdatedSymbol(string symbol);
 
     /**
      * @dev Initializes the total release
@@ -487,7 +461,7 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
      * @param _to The address to transfer to.
      * @param _value The amount to be transferred.
      */
-    function transfer(address _to, uint256 _value) public whenNotFreeze returns (bool) {
+    function transfer(address _to, uint256 _value) public whenNotFreeze(address _to) returns (bool) {
         return super.transfer(_to, _value);
     }
 
@@ -497,18 +471,10 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
      * @param _to address The address which you want to transfer to
      * @param _value uint256 the amount of tokens to be transferred
      */
-    function transferFrom(address _from, address _to, uint256 _value) public whenNotFreeze returns (bool) {
+    function transferFrom(address _from, address _to, uint256 _value) public whenNotFreeze(address _from) returns (bool) {
         return super.transferFrom(_from, _to, _value);
     }        
     
-    /**
-     * @dev Update symbol
-     * @param _symbol The symbol name
-     */
-    function setSymbol(string _symbol) public onlyOwner {
-        symbol = _symbol;
-        emit UpdatedSymbol(symbol);
-    } 
 
 }
 
