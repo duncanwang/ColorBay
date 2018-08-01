@@ -415,7 +415,7 @@ contract FrozenableToken is Ownable
 
     event FrozenFunds(address indexed to, bool frozen);
 
-    modifier whenNotFreeze(address _who) {
+    modifier whenNotFrozen(address _who) {
       require(!frozenAccount[msg.sender] && !frozenAccount[_who]);
       _;
     }
@@ -433,7 +433,8 @@ contract FrozenableToken is Ownable
  * @dev Global digital painting asset platform token.
  * @author colorbay.org 
  */
-contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToken {
+contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToken 
+{
 
     string public name = "Colorbay Token";
     string public symbol = "CLB";
@@ -461,7 +462,7 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
      * @param _to The address to transfer to.
      * @param _value The amount to be transferred.
      */
-    function transfer(address _to, uint256 _value) public whenNotFreeze(_to) returns (bool) {
+    function transfer(address _to, uint256 _value) public whenNotFrozen(_to) returns (bool) {
         return super.transfer(_to, _value);
     }
 
@@ -471,7 +472,7 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
      * @param _to address The address which you want to transfer to
      * @param _value uint256 the amount of tokens to be transferred
      */
-    function transferFrom(address _from, address _to, uint256 _value) public whenNotFreeze(_from) returns (bool) {
+    function transferFrom(address _from, address _to, uint256 _value) public whenNotFrozen(_from) returns (bool) {
         return super.transferFrom(_from, _to, _value);
     }        
     
