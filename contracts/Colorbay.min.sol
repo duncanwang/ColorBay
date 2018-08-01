@@ -8,8 +8,8 @@ library SafeMath
 {
 
   /**
-   * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
-   */
+    * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
+    */
   function sub(uint256 a, uint256 b) internal pure returns (uint256) {
     assert(b <= a);
     return a - b;
@@ -461,7 +461,7 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
      * @param _to The address to transfer to.
      * @param _value The amount to be transferred.
      */
-    function transfer(address _to, uint256 _value) public whenNotFreeze(address _to) returns (bool) {
+    function transfer(address _to, uint256 _value) public whenNotFreeze(_to) returns (bool) {
         return super.transfer(_to, _value);
     }
 
@@ -471,10 +471,9 @@ contract Colorbay is PausableToken, MintableToken, BurnableToken, FrozenableToke
      * @param _to address The address which you want to transfer to
      * @param _value uint256 the amount of tokens to be transferred
      */
-    function transferFrom(address _from, address _to, uint256 _value) public whenNotFreeze(address _from) returns (bool) {
+    function transferFrom(address _from, address _to, uint256 _value) public whenNotFreeze(_from) returns (bool) {
         return super.transferFrom(_from, _to, _value);
     }        
     
 
 }
-
