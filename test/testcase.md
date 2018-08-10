@@ -4,7 +4,7 @@
 ---
 
 #### 测试工具
-Tuffle或Remix
+Remix或Truffle
 
 ---
 
@@ -104,6 +104,7 @@ approve("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db", "2000000000,0000")
 【结果】执行成功。不对啊，授信额度怎么可以超过总量呢？
 
 2、 查询李四账号`0x4b0...4d2db`的余额
+
 ```
 balanceOf("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db")
 ```
@@ -156,7 +157,8 @@ allowance("0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0x4b0897b0513fdc7c541b6d
 ```
 7、增加授权额度，切换到管理员账号`0xca3...a733c`下，给李四账号`0x4b0...4d2db`授权额度增加4000个CLB，执行:
 ```
-increaseApproval("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db","4000,0000")
+increaseApproval("0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db", "4000,0000")
+
 ```
 重复第6步，查询授权额度
 
@@ -190,7 +192,7 @@ paused()
 ```
 4、李四给王五账号`0x583...40225`转账3000个CLB，切换到李四账号`0x4b0...4d2db`下，执行将失败，因为已锁仓：
 ```
-transferFrom("0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0x583031d1113ad414f02576bd6afabfb302140225","3000,000000000000000000")
+transferFrom("0xca35b7d915458ef540ade6068dfe2f44e8fa733c","0x583031d1113ad414f02576bd6afabfb302140225","3000,0000")
 ```
 5、切换到李四账号`0x4b0...4d2db`下，执行解仓，将报错，没有权限
 ```
@@ -322,8 +324,10 @@ owner()
 ```
 4、用原管理员账号，做增发、燃烧、锁/解仓、更新代币名字和简称操作，将会失败，因为没有权限
 ```
-burn("10000,0000") #增发
-mint("0xca35b7d915458ef540ade6068dfe2f44e8fa733c", "10000,0000") #燃烧
+
+burn("10000,0000") #燃烧
+mint("0xca35b7d915458ef540ade6068dfe2f44e8fa733c", "10000,0000") #增发
+
 pause() #锁仓
 unpause() #解仓
 setTokenInformation("Colorbay Token 3", "CBT3")

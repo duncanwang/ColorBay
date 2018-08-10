@@ -6,6 +6,7 @@ pragma solidity ^0.4.23;
  */
 library SafeMath 
 {
+
   /**
   * @dev Multiplies two numbers, throws on overflow.
   */
@@ -31,6 +32,8 @@ library SafeMath
     // assert(_a == _b * c + _a % _b); // There is no case in which this doesn't hold
     return _a / _b;
   }
+
+  /**
 
   /**
     * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
@@ -426,5 +429,4 @@ contract Colorbay is PausableToken, FrozenableToken
         return super.transferFrom(_from, _to, _value);
     }        
     
-
 }
