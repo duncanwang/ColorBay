@@ -4,13 +4,14 @@ Colorbay智能合约模块
 ## 1.1 合约地址
 0x7b6a1b454cb1245e698ce73029c7fcccd5cd4464
 
-##1.2 用户数据
+## 1.2 用户数据
 jid	chain_userid	姓名	初始CLB数量	类型	钱包地址	钱包私钥
 1	1534150413256015	张三	500000000个	运营用户	0x03183a5c78434860d5e021d98155a55dd577a97a	0x1cb131d6c47d4ad6d4313af320a35976b575c346c3323f07fb4d00ffd9f65d7e
 2	1534151918819209	李四	0个	普通用户	0x41cb7db0e682986a9368f40f63fd1377ec28f9ef	0x1cb131d6c47d4ad6d4313af320a35976b575c346c3323f07fb4d00ffd9f65d7e
 3	1533795622184255	王五	0个	普通用户	0x69a265d4a9c8e236e3539365ae32508b9fe4a303	0x31b72d0dd8a22fc294adc4ad4de4226a5ca9f90236573f0ba78b39657e07d84e
 4	1533795622184255	赵六	0个	普通用户	0xc34fd97b8d52e49d55efa970c0a2ea34848006e8	0x1c83e805d7dbaf3f15141433e3dfc2e552537e85f55888bcdb4a732a2c0d8f83
-二、接口测试简单用例
+
+# 二、接口测试简单用例
 1、张三从朋友那听说了一条发柴之道，受朋友邀请，来彩贝注册了账号并有了钱包（张三已经注册，可跳过这一步）
 http://api.ju3ban.net/wallet/create
 
@@ -39,8 +40,8 @@ http://api.ju3ban.net/user/unlocking?jid=1
 10、第二天，张三决定重新锁定1000个币，发现币天增加了（待与周进对接）
 http://api.ju3ban.net/user/relock/?id=2&jid=1
 
-三、附 数据库初始化
-
+# 三、附 数据库初始化
+```
 SET FOREIGN_KEY_CHECKS=0;
 
 -- 用户彩贝钱包表
@@ -75,3 +76,4 @@ truncate table `db_colorbay`.`tb_note_clb_log`;
 truncate table `db_colorbay`.`tb_note_rank`;
 truncate table `db_colorbay`.`tb_vote_log`;
 truncate table `db_colorbay`.`tb_vote_rank`;
+```
