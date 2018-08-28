@@ -487,9 +487,9 @@ contract TokenVesting is Ownable {
     
     mapping (address => Plan) public plans;
     
-    event Released(address beneficiary, uint256 amount);
-    event Revoked();
-    event AddPlan(address indexed beneficiary, uint256 startTime, uint256 locktoTime, uint256 releaseStages, uint256 endTime, uint256 totalToken, uint256 releasedAmount, bool isRevoked, string remark);
+    event Released(address indexed beneficiary, uint256 amount);
+    event Revoked(address indexed beneficiary, uint256 refund);
+    event AddPlan(address indexed beneficiary, uint256 startTime, uint256 locktoTime, uint256 releaseStages, uint256 endTime, uint256 totalToken, uint256 releasedAmount, bool revocable, bool isRevoked, string remark);
     
     /**
      * @param token ERC20 token which is being vested
