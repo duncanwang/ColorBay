@@ -492,7 +492,7 @@ contract TokenVesting is Ownable {
     event AddPlan(address indexed beneficiary, uint256 startTime, uint256 locktoTime, uint256 releaseStages, uint256 endTime, uint256 totalToken, uint256 releasedAmount, bool revocable, bool isRevoked, string remark);
     
     /**
-     * @param token ERC20 token which is being vested
+     * @param _token ERC20 token which is being vested
      */
     constructor(address _token) public {
         token = ERC20Basic(_token);
@@ -503,7 +503,7 @@ contract TokenVesting is Ownable {
      */
     function addPlan(address _beneficiary, uint256 _startTime, uint256 _locktoTime, uint256 _releaseStages, uint256 totalToken, bool _revocable, string _remark) public returns (bool) {
         require(_beneficiary != address(0));
-        require(plans[_beneficiary] != 0);
+        //require(!plans[_beneficiary]);
         require(_startTime > 0 && _locktoTime > 0 && _releaseStages > 0 && totalToken > 0);
         require(_locktoTime > block.timestamp && _locktoTime > _startTime);
 
@@ -521,7 +521,7 @@ contract TokenVesting is Ownable {
     * @notice Transfers vested tokens to beneficiary.
     */
     function release() public {
-        require(plans[msg.sender] != 0);
+        //require(plans[msg.sender] != 0);
         require(!plans[msg.sender].isRevoked);
         
         uint256 unreleased = releasableAmount();
@@ -537,7 +537,7 @@ contract TokenVesting is Ownable {
      * @dev Calculates the amount that has already vested but hasn't been released yet.
      */
     function releasableAmount() public view returns (uint256) {
-        require(plans[msg.sender] != 0);
+        //require(plans[msg.sender] != 0);
         return vestedAmount().sub(plans[msg.sender].releasedAmount);
     }
 
@@ -545,7 +545,7 @@ contract TokenVesting is Ownable {
      * @dev Calculates the amount that has already vested.
      */
     function vestedAmount() public view returns (uint256) {
-        require(plans[msg.sender] != 0);
+        //require(plans[msg.sender] != 0);
         
         uint256 totalBalance = 0;
 
@@ -579,7 +579,7 @@ contract TokenVesting is Ownable {
      * @param _beneficiary address of the beneficiary to whom vested tokens are transferred
      */
     function revoke(address _beneficiary) public onlyOwner {
-        require(plans[_beneficiary] != 0);
+        //require(plans[_beneficiary] != 0);
         require(plans[_beneficiary].revocable);
         require(!plans[_beneficiary].isRevoked);
     
@@ -598,7 +598,7 @@ contract TokenVesting is Ownable {
      * @dev Calculates the amount that recoverable token.
      */
     function revokeableAmount(address _beneficiary) public view returns (uint256) {
-        require(plans[_beneficiary] != 0);
+        //require(plans[_beneficiary] != 0);
         require(plans[_beneficiary].revocable);
         require(!plans[_beneficiary].isRevoked);
         
