@@ -501,16 +501,16 @@ contract TokenVesting is Ownable {
     /**
      * @dev Add a holder plan
      */
-    function addPlan(address _beneficiary, uint256 _startTime, uint256 _locktoTime, uint256 _releaseStages, uint256 totalToken, bool _revocable, string _remark='') public returns (bool) {
+    function addPlan(address _beneficiary, uint256 _startTime, uint256 _locktoTime, uint256 _releaseStages, uint256 totalToken, bool _revocable, string _remark) public returns (bool) {
         require(_beneficiary != address(0));
-        require(!plans[_beneficiary]);
+        require(plans[_beneficiary] != 0);
         require(_startTime > 0 && _locktoTime > 0 && _releaseStages > 0 && totalToken > 0);
         require(_locktoTime > block.timestamp && _locktoTime > _startTime);
 
         require(token.balanceOf(this) >= payPool.add(totalToken));
         payPool = payPool.add(totalToken);
         
-        uint endTime = releaseStages.mul(stageStep).mul(86400).add(_locktoTime);
+        uint endTime = _releaseStages.mul(stageStep).mul(86400).add(_locktoTime);
         plans[_beneficiary] = Plan(_beneficiary, _startTime, _locktoTime, _releaseStages, endTime, totalToken, 0, _revocable, false, _remark);
         planCount = planCount.add(1);
         emit AddPlan(_beneficiary, _startTime, _locktoTime, _releaseStages, endTime, totalToken, 0, _revocable, false, _remark);
@@ -565,7 +565,7 @@ contract TokenVesting is Ownable {
         
         if(currStage > 0 && releaseStages == currStage) {
             totalBalance = totalToken.sub(plans[msg.sender].releasedAmount);
-        } elseif(currStage > 0) {
+        } else if(currStage > 0) {
             totalBalance = unitToken.mul(currStage);
         }
         
@@ -580,7 +580,7 @@ contract TokenVesting is Ownable {
      */
     function revoke(address _beneficiary) public onlyOwner {
         require(plans[_beneficiary] != 0);
-        require(plans[_beneficiary].revocable]);
+        require(plans[_beneficiary].revocable);
         require(!plans[_beneficiary].isRevoked);
     
         uint256 totalToken = plans[_beneficiary].totalToken;
@@ -599,14 +599,14 @@ contract TokenVesting is Ownable {
      */
     function revokeableAmount(address _beneficiary) public view returns (uint256) {
         require(plans[_beneficiary] != 0);
-        require(plans[_beneficiary].revocable]);
+        require(plans[_beneficiary].revocable);
         require(!plans[_beneficiary].isRevoked);
         
         uint256 totalBalance = 0;
 
         if (block.timestamp > plans[_beneficiary].endTime) {
             return totalBalance;
-        } elseif (block.timestamp <= plans[_beneficiary].locktoTime) {
+        } else if (block.timestamp <= plans[_beneficiary].locktoTime) {
             return plans[_beneficiary].totalToken;
         } else {
             uint256 totalTime = plans[_beneficiary].endTime.sub(plans[_beneficiary].locktoTime);
@@ -619,4 +619,3 @@ contract TokenVesting is Ownable {
     }
   
 }
-
