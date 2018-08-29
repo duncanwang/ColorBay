@@ -478,7 +478,7 @@ contract TokenVesting is Ownable {
   
     ERC20Basic token;
     //How many days in a stage
-    uint256 public stageStep = 30;
+    uint256 public stageStep = 10;
     uint256 public planCount = 0;
     uint256 public payPool = 0;
     
