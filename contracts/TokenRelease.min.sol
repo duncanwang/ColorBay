@@ -477,11 +477,9 @@ contract TokenVesting is Ownable {
     using SafeERC20 for ERC20Basic;
   
     ERC20Basic token;
-    //How many days in a stage
-    //uint256 public stageStep = 30;
+
     uint256 public planCount = 0;
     uint256 public payPool = 0;
-    uint256 public block.timestamp = 0;
     
     //A token holder's plan
     struct Plan {
@@ -561,48 +559,48 @@ contract TokenVesting is Ownable {
     /**
     * @notice Transfers vested tokens to beneficiary.
     */
-    function release() public {
-        //require(plans[msg.sender] != 0);
-        require(!plans[msg.sender].isRevoked);
+    function release(address _beneficiary) public {
+        //require(plans[_beneficiary] != 0);
+        require(!plans[_beneficiary].isRevoked);
         
-        uint256 unreleased = releasableAmount();
-        require(unreleased > 0 && unreleased <= plans[msg.sender].totalToken);
+        uint256 unreleased = releasableAmount(_beneficiary);
+        require(unreleased > 0 && unreleased <= plans[_beneficiary].totalToken);
         
-        plans[msg.sender].releasedAmount = plans[msg.sender].releasedAmount.add(unreleased);
-        
-        token.safeTransfer(msg.sender, unreleased);
-        emit Released(msg.sender, unreleased);
+        plans[_beneficiary].releasedAmount = plans[_beneficiary].releasedAmount.add(unreleased);
+        payPool = payPool.sub(unreleased);
+        token.safeTransfer(_beneficiary, unreleased);
+        emit Released(_beneficiary, unreleased);
     }
     
     /**
      * @dev Calculates the amount that has already vested but hasn't been released yet.
      */
-    function releasableAmount() public view returns (uint256) {
+    function releasableAmount(address _beneficiary) public view returns (uint256) {
         //require(plans[msg.sender] != 0);
-        return vestedAmount().sub(plans[msg.sender].releasedAmount);
+        return vestedAmount(_beneficiary).sub(plans[_beneficiary].releasedAmount);
     }
 
     /**
      * @dev Calculates the amount that has already vested.
      */
-    function vestedAmount() public view returns (uint256) {
-        //require(plans[msg.sender] != 0);
+    function vestedAmount(address _beneficiary) public view returns (uint256) {
+        //require(plans[_beneficiary] != 0);
 
-        if (block.timestamp <= plans[msg.sender].locktoTime || (block.timestamp > plans[msg.sender].endTime && plans[msg.sender].totalToken == plans[msg.sender].releasedAmount) || plans[msg.sender].isRevoked) {
+        if (block.timestamp <= plans[_beneficiary].locktoTime || (block.timestamp > plans[_beneficiary].endTime && plans[_beneficiary].totalToken == plans[_beneficiary].releasedAmount) || plans[_beneficiary].isRevoked) {
             return 0;
         }
         
-        uint256 totalTime = plans[msg.sender].endTime.sub(plans[msg.sender].locktoTime);
-        uint256 totalToken = plans[msg.sender].totalToken;
-        uint256 releaseStages = plans[msg.sender].releaseStages;
-        uint256 passedTime = block.timestamp.sub(plans[msg.sender].locktoTime);
+        uint256 totalTime = plans[_beneficiary].endTime.sub(plans[_beneficiary].locktoTime);
+        uint256 totalToken = plans[_beneficiary].totalToken;
+        uint256 releaseStages = plans[_beneficiary].releaseStages;
+        uint256 passedTime = block.timestamp.sub(plans[_beneficiary].locktoTime);
         
         uint256 unitStageTime = totalTime.div(releaseStages);
         uint256 unitToken = totalToken.div(releaseStages);
         uint256 currStage = passedTime.div(unitStageTime);
         uint256 totalBalance = 0;
         
-        if(currStage > 0 && releaseStages == currStage && totalTime.mod(releaseStages) > 0 && block.timestamp < plans[msg.sender].endTime) {
+        if(currStage > 0 && releaseStages == currStage && totalTime.mod(releaseStages) > 0 && block.timestamp < plans[_beneficiary].endTime) {
             totalBalance = 0;
         } else if(currStage > 0 && releaseStages == currStage) {
             totalBalance = totalToken;
@@ -620,11 +618,12 @@ contract TokenVesting is Ownable {
      */
     function revoke(address _beneficiary) public onlyOwner {
         //require(plans[_beneficiary] != 0);
-        require(plans[_beneficiary].revocable);
         require(!plans[_beneficiary].isRevoked);
-    
+        
+        //Transfer the attribution token to the beneficiary before revoking.
+        release(_beneficiary);
+        
         uint256 totalToken = plans[_beneficiary].totalToken;
-    
         uint256 unreleased = revokeableAmount(_beneficiary);
         uint256 refund = totalToken.sub(unreleased);
     
@@ -640,13 +639,12 @@ contract TokenVesting is Ownable {
      */
     function revokeableAmount(address _beneficiary) public view returns (uint256) {
         //require(plans[_beneficiary] != 0);
-        require(plans[_beneficiary].revocable);
-        require(!plans[_beneficiary].isRevoked);
-        
         uint256 totalBalance = 0;
-
-        if (block.timestamp <= plans[_beneficiary].locktoTime) {
-            return plans[_beneficiary].totalToken;
+        
+        if(plans[_beneficiary].isRevoked) {
+            totalBalance = 0;
+        } else if (block.timestamp <= plans[_beneficiary].locktoTime) {
+            totalBalance = plans[_beneficiary].totalToken;
         } else {
             uint256 totalTime = plans[_beneficiary].endTime.sub(plans[_beneficiary].locktoTime);
             uint256 totalToken = plans[_beneficiary].totalToken;
