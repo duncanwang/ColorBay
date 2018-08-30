@@ -42,7 +42,6 @@ Remix或Truffle
 
 2、创建激励合约TokenVesting
 
-将合约中的`uint256 public stageStep = 30`修改成`uint256 public stageStep = 10`，以10分钟为一个释放阶段。（实际项目中以30天为一个释放阶段）
 切换到管理员账号`0xca3...a733c`下，创建激励合约。输入CLB合约地址:
 ```
 constructor("0x692a70d2e424a56d2c6c27aa97d1a86395877b3a")
