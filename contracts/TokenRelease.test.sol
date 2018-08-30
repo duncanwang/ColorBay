@@ -478,10 +478,10 @@ contract TokenVesting is Ownable {
   
     ERC20Basic token;
     //How many days in a stage
-    uint256 public stageStep = 30;
+    uint256 public stageStep = 10;
     uint256 public planCount = 0;
     uint256 public payPool = 0;
-    uint256 public block.timestamp = 0;
+    uint256 public block_timestamp = 0;
     
     //A token holder's plan
     struct Plan {
@@ -531,7 +531,7 @@ contract TokenVesting is Ownable {
     }
 
     function setBlockTimestamp(uint256 _timestamp) public {
-        block.timestamp = _timestamp;
+        block_timestamp = _timestamp;
     }
     
     /**
@@ -550,7 +550,7 @@ contract TokenVesting is Ownable {
         require(_beneficiary != address(0));
         //require(plans[_beneficiary] != 0);
         require(_startTime > 0 && _locktoTime > 0 && _releaseStages > 0 && _totalToken > 0);
-        require(_locktoTime > block.timestamp && _locktoTime > _startTime);
+        require(_locktoTime > block_timestamp && _locktoTime > _startTime);
 
         plans[_beneficiary] = Plan(_beneficiary, _startTime, _locktoTime, _releaseStages, _endTime, _totalToken, 0, _revocable, false, _remark);
         planCount = planCount.add(1);
@@ -569,7 +569,7 @@ contract TokenVesting is Ownable {
         require(unreleased > 0 && unreleased <= plans[msg.sender].totalToken);
         
         plans[msg.sender].releasedAmount = plans[msg.sender].releasedAmount.add(unreleased);
-        
+        payPool = payPool.sub(unreleased);
         token.safeTransfer(msg.sender, unreleased);
         emit Released(msg.sender, unreleased);
     }
@@ -588,21 +588,21 @@ contract TokenVesting is Ownable {
     function vestedAmount() public view returns (uint256) {
         //require(plans[msg.sender] != 0);
 
-        if (block.timestamp <= plans[msg.sender].locktoTime || (block.timestamp > plans[msg.sender].endTime && plans[msg.sender].totalToken == plans[msg.sender].releasedAmount) || plans[msg.sender].isRevoked) {
+        if (block_timestamp <= plans[msg.sender].locktoTime || (block_timestamp > plans[msg.sender].endTime && plans[msg.sender].totalToken == plans[msg.sender].releasedAmount) || plans[msg.sender].isRevoked) {
             return 0;
         }
         
         uint256 totalTime = plans[msg.sender].endTime.sub(plans[msg.sender].locktoTime);
         uint256 totalToken = plans[msg.sender].totalToken;
         uint256 releaseStages = plans[msg.sender].releaseStages;
-        uint256 passedTime = block.timestamp.sub(plans[msg.sender].locktoTime);
+        uint256 passedTime = block_timestamp.sub(plans[msg.sender].locktoTime);
         
         uint256 unitStageTime = totalTime.div(releaseStages);
         uint256 unitToken = totalToken.div(releaseStages);
         uint256 currStage = passedTime.div(unitStageTime);
         uint256 totalBalance = 0;
         
-        if(currStage > 0 && releaseStages == currStage && totalTime.mod(releaseStages) > 0 && block.timestamp < plans[msg.sender].endTime) {
+        if(currStage > 0 && releaseStages == currStage && totalTime.mod(releaseStages) > 0 && block_timestamp < plans[msg.sender].endTime) {
             totalBalance = 0;
         } else if(currStage > 0 && releaseStages == currStage) {
             totalBalance = totalToken;
@@ -645,13 +645,13 @@ contract TokenVesting is Ownable {
         
         uint256 totalBalance = 0;
 
-        if (block.timestamp <= plans[_beneficiary].locktoTime) {
+        if (block_timestamp <= plans[_beneficiary].locktoTime) {
             return plans[_beneficiary].totalToken;
         } else {
             uint256 totalTime = plans[_beneficiary].endTime.sub(plans[_beneficiary].locktoTime);
             uint256 totalToken = plans[_beneficiary].totalToken;
             uint256 releaseStages = plans[_beneficiary].releaseStages;
-            uint256 passedTime = block.timestamp.sub(plans[_beneficiary].locktoTime);
+            uint256 passedTime = block_timestamp.sub(plans[_beneficiary].locktoTime);
             
             uint256 unitStageTime = totalTime.div(releaseStages);
             uint256 unitToken = totalToken.div(releaseStages);
