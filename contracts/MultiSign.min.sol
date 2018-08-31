@@ -93,11 +93,7 @@ contract ColorbayMultiSign {
         bool executed;
     }
 
-    modifier onlyWallet() {
-        require(msg.sender == address(this));
-        _;
-    }
-    
+
     modifier onlyCreator() {
         require(msg.sender == creator);
         _;
@@ -202,7 +198,7 @@ contract ColorbayMultiSign {
      * @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
      * @param _required Number of required confirmations.
      */
-    function changeRequirement(uint256 _required) public validRequirement(owners.length, _required)
+    function changeRequirement(uint256 _required) private validRequirement(owners.length, _required)
     {
         required = _required;
         emit RequirementChange(_required);
