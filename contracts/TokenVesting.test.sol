@@ -477,7 +477,7 @@ contract TokenVesting is Ownable {
     using SafeERC20 for ERC20Basic;
   
     ERC20Basic token;
-    
+
     uint256 public planCount = 0;
     uint256 public payPool = 0;
     uint256 public block_timestamp = 0;
@@ -532,7 +532,7 @@ contract TokenVesting is Ownable {
     function setBlockTimestamp(uint256 _timestamp) public {
         block_timestamp = _timestamp;
     }
-    
+
     /**
      * @dev Check if the payment amount of the contract is sufficient
      */
@@ -547,9 +547,9 @@ contract TokenVesting is Ownable {
      */
     function addPlan(address _beneficiary, uint256 _startTime, uint256 _locktoTime, uint256 _releaseStages, uint256 _endTime, uint256 _totalToken, bool _revocable, string _remark) public checkPayPool(_totalToken) returns (bool) {
         require(_beneficiary != address(0));
-        //require(plans[_beneficiary] != 0);
+
         require(_startTime > 0 && _locktoTime > 0 && _releaseStages > 0 && _totalToken > 0);
-        require(_locktoTime > block_timestamp && _locktoTime > _startTime);
+        require(_locktoTime > block_timestamp && _locktoTime >= _startTime  && _endTime > _locktoTime);
 
         plans[_beneficiary] = Plan(_beneficiary, _startTime, _locktoTime, _releaseStages, _endTime, _totalToken, 0, _revocable, false, _remark);
         planCount = planCount.add(1);
@@ -561,7 +561,7 @@ contract TokenVesting is Ownable {
     * @notice Transfers vested tokens to beneficiary.
     */
     function release(address _beneficiary) public {
-        //require(plans[_beneficiary] != 0);
+        require(_beneficiary != address(0));
         require(!plans[_beneficiary].isRevoked);
         
         uint256 unreleased = releasableAmount(_beneficiary);
@@ -577,7 +577,7 @@ contract TokenVesting is Ownable {
      * @dev Calculates the amount that has already vested but hasn't been released yet.
      */
     function releasableAmount(address _beneficiary) public view returns (uint256) {
-        //require(plans[msg.sender] != 0);
+        require(_beneficiary != address(0));
         return vestedAmount(_beneficiary).sub(plans[_beneficiary].releasedAmount);
     }
 
@@ -585,22 +585,26 @@ contract TokenVesting is Ownable {
      * @dev Calculates the amount that has already vested.
      */
     function vestedAmount(address _beneficiary) public view returns (uint256) {
-        //require(plans[_beneficiary] != 0);
-
-        if (block_timestamp <= plans[_beneficiary].locktoTime || (block_timestamp > plans[_beneficiary].endTime && plans[_beneficiary].totalToken == plans[_beneficiary].releasedAmount) || plans[_beneficiary].isRevoked) {
+        require(_beneficiary != address(0));
+        if (block_timestamp <= plans[_beneficiary].locktoTime) {
             return 0;
+        } else if (plans[_beneficiary].isRevoked) {
+            return plans[_beneficiary].releasedAmount;
+        } else if (block_timestamp > plans[_beneficiary].endTime && plans[_beneficiary].totalToken == plans[_beneficiary].releasedAmount) {
+            return plans[_beneficiary].totalToken;
         }
         
         uint256 totalTime = plans[_beneficiary].endTime.sub(plans[_beneficiary].locktoTime);
         uint256 totalToken = plans[_beneficiary].totalToken;
         uint256 releaseStages = plans[_beneficiary].releaseStages;
-        uint256 passedTime = block_timestamp.sub(plans[_beneficiary].locktoTime);
+        uint256 endTime = block_timestamp > plans[_beneficiary].endTime ? plans[_beneficiary].endTime : block_timestamp;
+        uint256 passedTime = endTime.sub(plans[_beneficiary].locktoTime);
         
         uint256 unitStageTime = totalTime.div(releaseStages);
         uint256 unitToken = totalToken.div(releaseStages);
         uint256 currStage = passedTime.div(unitStageTime);
-        uint256 totalBalance = 0;
-        
+
+        uint256 totalBalance = 0;        
         if(currStage > 0 && releaseStages == currStage && totalTime.mod(releaseStages) > 0 && block_timestamp < plans[_beneficiary].endTime) {
             totalBalance = 0;
         } else if(currStage > 0 && releaseStages == currStage) {
@@ -618,7 +622,7 @@ contract TokenVesting is Ownable {
      * @param _beneficiary address of the beneficiary to whom vested tokens are transferred
      */
     function revoke(address _beneficiary) public onlyOwner {
-        //require(plans[_beneficiary] != 0);
+        require(_beneficiary != address(0));
         require(!plans[_beneficiary].isRevoked);
         
         //Transfer the attribution token to the beneficiary before revoking.
@@ -639,7 +643,7 @@ contract TokenVesting is Ownable {
      * @dev Calculates the amount that recoverable token.
      */
     function revokeableAmount(address _beneficiary) public view returns (uint256) {
-        //require(plans[_beneficiary] != 0);
+        require(_beneficiary != address(0));
         uint256 totalBalance = 0;
         
         if(plans[_beneficiary].isRevoked) {
@@ -650,7 +654,8 @@ contract TokenVesting is Ownable {
             uint256 totalTime = plans[_beneficiary].endTime.sub(plans[_beneficiary].locktoTime);
             uint256 totalToken = plans[_beneficiary].totalToken;
             uint256 releaseStages = plans[_beneficiary].releaseStages;
-            uint256 passedTime = block_timestamp.sub(plans[_beneficiary].locktoTime);
+            uint256 endTime = block_timestamp > plans[_beneficiary].endTime ? plans[_beneficiary].endTime : block_timestamp;
+            uint256 passedTime = endTime.sub(plans[_beneficiary].locktoTime);
             
             uint256 unitStageTime = totalTime.div(releaseStages);
             uint256 unitToken = totalToken.div(releaseStages);
