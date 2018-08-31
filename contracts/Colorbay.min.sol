@@ -389,7 +389,7 @@ contract Colorbay is PausableToken, FrozenableToken
 {
 
     string public name = "Colorbay Token";
-    string public symbol = "CLB";
+    string public symbol = "CLOB";
     uint256 public decimals = 18;
     uint256 INITIAL_SUPPLY = 1000000000 * (10 ** uint256(decimals));
 
