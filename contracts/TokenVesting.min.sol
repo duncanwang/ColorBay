@@ -643,19 +643,10 @@ contract TokenVesting is Ownable {
         
         if(plans[_beneficiary].isRevoked) {
             totalBalance = 0;
-        } else if (block.timestamp <= plans[_beneficiary].locktoTime) {
+        } else if (block_timestamp <= plans[_beneficiary].locktoTime) {
             totalBalance = plans[_beneficiary].totalToken;
         } else {
-            uint256 totalTime = plans[_beneficiary].endTime.sub(plans[_beneficiary].locktoTime);
-            uint256 totalToken = plans[_beneficiary].totalToken;
-            uint256 releaseStages = plans[_beneficiary].releaseStages;
-            uint256 endTime = block.timestamp > plans[_beneficiary].endTime ? plans[_beneficiary].endTime : block.timestamp;
-            uint256 passedTime = endTime.sub(plans[_beneficiary].locktoTime);
-            
-            uint256 unitStageTime = totalTime.div(releaseStages);
-            uint256 unitToken = totalToken.div(releaseStages);
-            uint256 currStage = passedTime.div(unitStageTime);
-            totalBalance = totalToken.sub(unitToken.mul(currStage));
+            totalBalance = plans[_beneficiary].totalToken.sub(vestedAmount(_beneficiary));
         }
         return totalBalance;
     }
