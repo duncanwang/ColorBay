@@ -52,6 +52,8 @@ library SafeMath {
 
 interface ERC20 {
     function transfer(address to, uint256 value) external returns (bool);
+
+    function balanceOf(address who) view external returns (uint256);
 }
 
 /**
@@ -81,6 +83,7 @@ contract ColorbayMultiSign {
     address[] public owners;
     uint256 public required;
     uint256 public transactionCount;
+    address public creator;
 
     ERC20 public token;
 
@@ -90,10 +93,11 @@ contract ColorbayMultiSign {
         bool executed;
     }
 
-    modifier onlyWallet() {
-        require(msg.sender == address(this));
+
+    modifier onlyCreator() {
+        require(msg.sender == creator);
         _;
-    }
+    }    
 
     modifier ownerNotExists(address owner) {
         require(!isOwner[owner]);
@@ -150,25 +154,20 @@ contract ColorbayMultiSign {
         }
         owners = _owners;
         required = _required;
+        creator = msg.sender;
     }
 
-    /** 
-     * @dev Allows to add a new owner. Transaction has to be sent by wallet.
-     * @param owner Address of new owner.
-     */
-    function addOwner(address owner) public onlyWallet ownerNotExists(owner) notNull(owner) validRequirement(owners.length.add(1), required)
-    {
-        isOwner[owner] = true;
-        owners.push(owner);
-        emit OwnerAddition(owner);
-    }
+   
 
     /** 
      * @dev Allows to remove an owner. Transaction has to be sent by wallet.
      * @param owner Address of owner.
      */
-    function removeOwner(address owner) public onlyWallet ownerExists(owner)
+    function removeOwner(address owner) public ownerExists(owner)
     {
+        /*only owner can delete itself*/
+        require(owner == msg.sender);
+        
         isOwner[owner] = false;
         for (uint256 i=0; i<owners.length.sub(1); i++) {
             if (owners[i] == owner) {
@@ -182,31 +181,24 @@ contract ColorbayMultiSign {
         }            
         emit OwnerRemoval(owner);
     }
-
+    
     /** 
-     * @dev Allows to replace an owner with a new owner. Transaction has to be sent by wallet.
-     * @param owner Address of owner to be replaced.
-     * @param newOwner Address of new owner.
+     * @dev Withdraw the token remained to the constructor address.
      */
-    function replaceOwner(address owner, address newOwner) public onlyWallet ownerExists(owner) ownerNotExists(newOwner)
-    {
-        for(uint256 i=0; i<owners.length; i++) {
-            if (owners[i] == owner) {
-                owners[i] = newOwner;
-                break;
-            }
-        }            
-        isOwner[owner] = false;
-        isOwner[newOwner] = true;
-        emit OwnerRemoval(owner);
-        emit OwnerAddition(newOwner);
-    }
+    function withdrawToken() public onlyCreator{
+        if( 0 < token.balanceOf(address(this))) {
+           token.transfer(creator, token.balanceOf(address(this)));
+        }
+    }    
+
+
+    
 
     /** 
      * @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
      * @param _required Number of required confirmations.
      */
-    function changeRequirement(uint256 _required) public onlyWallet validRequirement(owners.length, _required)
+    function changeRequirement(uint256 _required) private validRequirement(owners.length, _required)
     {
         required = _required;
         emit RequirementChange(_required);
@@ -390,4 +382,3 @@ contract ColorbayMultiSign {
     }
 
 }
-
